@@ -16,7 +16,7 @@ let previousImage = mountains[0];
 let currentImage = cities[0];
 let lastSwitch = performance.now();
 let startTime: number;
-let city: boolean;
+let city: boolean = true;
 let clicked: boolean; 
 
 (async () => {
@@ -50,6 +50,11 @@ let clicked: boolean;
     if (now - lastSwitch >= 800) {
       const rand = Math.random();
       previousImage = currentImage;
+      if (!clicked && city) {
+        rtimeDiv.textContent = `INCORRECT! Did not click.`;
+      } else if (!clicked && !city) {
+        rtimeDiv.textContent = `CORRECT! Did not click.`;
+      }
       if (rand <= 0.9) {
         currentImage = cities[Math.floor(Math.random() * cities.length)];;
         city = true;
