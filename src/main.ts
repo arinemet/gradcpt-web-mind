@@ -4,20 +4,23 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
-const city1 = new Image();
-const mountain1 = new Image();
-city1.src = "/city.jpg";
-mountain1.src = "/mountain.jpg";
+const cities: HTMLImageElement[] = [];
+const mountains: HTMLImageElement[] = [];
 
-let previousImage = mountain1;
-let currentImage = city1;
+for (let i = 0; i <= 9; i++) {
+  const c = new Image(); c.src = `/cities/${i}.jpg`; cities.push(c);
+  const m = new Image(); m.src = `/mountains/${i}.jpg`; mountains.push(m);
+}
+
+let previousImage = mountains[0];
+let currentImage = cities[0];
 let lastSwitch = performance.now();
 let startTime: number;
 let city: boolean;
 let clicked: boolean; 
 
 (async () => {
-  await Promise.all([city1.decode(), mountain1.decode()]);
+  await Promise.all([...cities, ...mountains].map(img => img.decode()));
 
   function crossFade(img: HTMLImageElement, currentTime: number) {
     if (!startTime) startTime = currentTime;
@@ -48,10 +51,10 @@ let clicked: boolean;
       const rand = Math.random();
       previousImage = currentImage;
       if (rand <= 0.9) {
-        currentImage = city1;
+        currentImage = cities[Math.floor(Math.random() * cities.length)];;
         city = true;
       } else {
-        currentImage = mountain1;
+        currentImage = mountains[Math.floor(Math.random() * mountains.length)];;
         city = false;
 
       }
