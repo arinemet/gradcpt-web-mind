@@ -65,6 +65,7 @@ let clicked: boolean;
       }
       startTime = 0;
       crossFade(currentImage, now);
+      console.log("interval:", (now - lastSwitch).toFixed(1));
       lastSwitch = now;
       clicked = false;
     }
