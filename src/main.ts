@@ -8,8 +8,8 @@ const cities: HTMLImageElement[] = [];
 const mountains: HTMLImageElement[] = [];
 
 for (let i = 0; i <= 9; i++) {
-  const c = new Image(); c.src = `/cities/${i}.jpg`; cities.push(c);
-  const m = new Image(); m.src = `/mountains/${i}.jpg`; mountains.push(m);
+  const c = new Image(); c.src = `${import.meta.env.BASE_URL}cities/${i}.jpg`; cities.push(c);
+  const m = new Image(); m.src = `${import.meta.env.BASE_URL}mountains/${i}.jpg`; mountains.push(m);
 }
 
 let previousImage = mountains[0];
