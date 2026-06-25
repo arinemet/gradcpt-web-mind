@@ -7,7 +7,7 @@ const rtimeDiv = document.querySelector("#rtime")!;
 const cities: HTMLImageElement[] = [];
 const mountains: HTMLImageElement[] = [];
 
-for (let i = 0; i <= 9; i++) {
+for (let i = 1; i <= 10; i++) {
   const c = new Image(); c.src = `${import.meta.env.BASE_URL}city_${i}.jpg`; cities.push(c);
   const m = new Image(); m.src = `${import.meta.env.BASE_URL}mountain_${i}.jpg`; mountains.push(m);
 }
