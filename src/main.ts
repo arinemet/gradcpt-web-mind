@@ -4,23 +4,33 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
-const cities: HTMLImageElement[] = [];
-const mountains: HTMLImageElement[] = [];
-
-for (let i = 1; i <= 10; i++) {
-  const c = new Image(); c.src = `${import.meta.env.BASE_URL}city_${i}.jpg`; cities.push(c);
-  const m = new Image(); m.src = `${import.meta.env.BASE_URL}mountain_${i}.jpg`; mountains.push(m);
+function parseStimOrder(text: string) {
+  return text.trim().split("\n").map(line => line.split(",")[1].replace(";", "").trim());
 }
 
-let previousImage = mountains[0];
-let currentImage = cities[0];
+let previousImage: HTMLImageElement;
+let currentImage: HTMLImageElement;
 let lastSwitch = performance.now();
 let startTime: number;
 let city: boolean = true;
-let clicked: boolean; 
+let clicked: boolean = false; 
 
 (async () => {
-  await Promise.all([...cities, ...mountains].map(img => img.decode()));
+  const songText = await fetch(`${import.meta.env.BASE_URL}song1.txt`).then(res => res.text());
+  const stimulusFiles = parseStimOrder(songText);
+  const stimulusImages = stimulusFiles.map(fileName => {
+    const img = new Image();
+    img.src = `${import.meta.env.BASE_URL}${fileName}`;
+    return img;
+  });
+  let stimulusIndex = 0;
+
+  await Promise.all(stimulusImages.map(img => img.decode()));
+
+  currentImage = stimulusImages[stimulusIndex];
+  previousImage = currentImage;
+  city = stimulusFiles[stimulusIndex].startsWith("city_");
+  ctx.drawImage(currentImage, 0, 0);
 
   function crossFade(img: HTMLImageElement, currentTime: number) {
     if (!startTime) startTime = currentTime;
@@ -48,21 +58,15 @@ let clicked: boolean;
     const now = performance.now();
 
     if (now - lastSwitch >= 800) {
-      const rand = Math.random();
       previousImage = currentImage;
       if (!clicked && city) {
         rtimeDiv.textContent = `INCORRECT! Did not click.`;
       } else if (!clicked && !city) {
         rtimeDiv.textContent = `CORRECT! Did not click.`;
       }
-      if (rand <= 0.9) {
-        currentImage = cities[Math.floor(Math.random() * cities.length)];;
-        city = true;
-      } else {
-        currentImage = mountains[Math.floor(Math.random() * mountains.length)];;
-        city = false;
-
-      }
+      stimulusIndex = (stimulusIndex + 1) % stimulusImages.length;
+      currentImage = stimulusImages[stimulusIndex];
+      city = stimulusFiles[stimulusIndex].startsWith("city_");
       startTime = 0;
       crossFade(currentImage, now);
       console.log("interval:", (now - lastSwitch).toFixed(1));
