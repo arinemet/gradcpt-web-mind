@@ -16,6 +16,16 @@ let city: boolean = true;
 let clicked: boolean = false; 
 
 (async () => {
+  const startScreen = document.querySelector<HTMLDivElement>("#start-screen")!;
+  const appDiv = document.querySelector<HTMLDivElement>("#app")!;
+  await new Promise<void>(resolve => {
+    startScreen.addEventListener("click", () => {
+      document.documentElement.requestFullscreen();
+      startScreen.style.display = "none";
+      appDiv.style.display = "";
+      resolve();
+    }, { once: true });
+  });
   const songText = await fetch(`${import.meta.env.BASE_URL}song1.txt`).then(res => res.text());
   const stimulusFiles = parseStimOrder(songText);
   const stimulusImages = stimulusFiles.map(fileName => {
@@ -56,6 +66,13 @@ let clicked: boolean = false;
 
   function frame() {
     const now = performance.now();
+
+    if (!document.fullscreenElement) {
+      document.querySelector("#app")!.innerHTML = `
+        <h1>Session Complete</h1>
+        <p>You exited from fullscreen. Thank you for participating.</p>
+      `;
+    }
 
     if (now - lastSwitch >= 800) {
       previousImage = currentImage;
