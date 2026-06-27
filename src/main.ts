@@ -1,11 +1,14 @@
-import './style.css'
+import "./style.css";
 
 const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
 function parseStimOrder(text: string) {
-  return text.trim().split("\n").map(line => line.split(",")[1].replace(";", "").trim());
+  return text
+    .trim()
+    .split("\n")
+    .map((line) => line.split(",")[1].replace(";", "").trim());
 }
 
 let previousImage: HTMLImageElement;
@@ -13,29 +16,35 @@ let currentImage: HTMLImageElement;
 let lastSwitch = performance.now();
 let startTime: number;
 let city: boolean = true;
-let clicked: boolean = false; 
+let clicked: boolean = false;
 
 (async () => {
   const startScreen = document.querySelector<HTMLDivElement>("#start-screen")!;
   const appDiv = document.querySelector<HTMLDivElement>("#app")!;
-  await new Promise<void>(resolve => {
-    startScreen.addEventListener("click", () => {
-      document.documentElement.requestFullscreen();
-      startScreen.style.display = "none";
-      appDiv.style.display = "";
-      resolve();
-    }, { once: true });
+  await new Promise<void>((resolve) => {
+    startScreen.addEventListener(
+      "click",
+      () => {
+        document.documentElement.requestFullscreen();
+        startScreen.style.display = "none";
+        appDiv.style.display = "";
+        resolve();
+      },
+      { once: true },
+    );
   });
-  const songText = await fetch(`${import.meta.env.BASE_URL}song1.txt`).then(res => res.text());
+  const songText = await fetch(`${import.meta.env.BASE_URL}song1.txt`).then(
+    (res) => res.text(),
+  );
   const stimulusFiles = parseStimOrder(songText);
-  const stimulusImages = stimulusFiles.map(fileName => {
+  const stimulusImages = stimulusFiles.map((fileName) => {
     const img = new Image();
     img.src = `${import.meta.env.BASE_URL}${fileName}`;
     return img;
   });
   let stimulusIndex = 0;
 
-  await Promise.all(stimulusImages.map(img => img.decode()));
+  await Promise.all(stimulusImages.map((img) => img.decode()));
 
   currentImage = stimulusImages[stimulusIndex];
   previousImage = currentImage;
@@ -44,7 +53,7 @@ let clicked: boolean = false;
 
   function crossFade(img: HTMLImageElement, currentTime: number) {
     if (!startTime) startTime = currentTime;
-    
+
     const elapsed = currentTime - startTime;
     // fade in at 800 ms speed
     const progress = Math.min(elapsed / 800, 1);
@@ -54,25 +63,42 @@ let clicked: boolean = false;
     // in
     ctx.globalAlpha = 1 - progress;
     ctx.drawImage(previousImage, 0, 0);
-    
+
     // out
     ctx.globalAlpha = progress;
     ctx.drawImage(currentImage, 0, 0);
 
     if (progress < 1) {
-        requestAnimationFrame((time) => crossFade(img, time));
+      requestAnimationFrame((time) => crossFade(img, time));
     }
-}
+  }
+
+  function exit() {
+    document.querySelector("#app")!.innerHTML = `
+        <h1>Session incomplete, exited.</h1>
+        <p>You exited from fullscreen. Thank you for participating.</p>
+      `;
+  }
+
+  function checkForFocusLossOrFullscreenLoss() {
+    if (!document.fullscreenElement) {
+      exit();
+    }
+    window.addEventListener("blur", () => {
+      exit();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        exit();
+      }
+    });
+  }
 
   function frame() {
     const now = performance.now();
 
-    if (!document.fullscreenElement) {
-      document.querySelector("#app")!.innerHTML = `
-        <h1>Session Complete</h1>
-        <p>You exited from fullscreen. Thank you for participating.</p>
-      `;
-    }
+    checkForFocusLossOrFullscreenLoss();
 
     if (now - lastSwitch >= 800) {
       previousImage = currentImage;
@@ -103,8 +129,6 @@ let clicked: boolean = false;
         rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms`;
       }
       clicked = true;
-      
     }
   });
-
-})();  
+})();
