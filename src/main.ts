@@ -25,10 +25,11 @@ let clicked: boolean = false;
     startScreen.addEventListener(
       "click",
       () => {
-        document.documentElement.requestFullscreen();
-        startScreen.style.display = "none";
-        appDiv.style.display = "";
-        resolve();
+        document.documentElement.requestFullscreen().then(() => {
+          startScreen.style.display = "none";
+          appDiv.style.display = "";
+          resolve();
+        });
       },
       { once: true },
     );
