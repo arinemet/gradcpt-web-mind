@@ -32,13 +32,12 @@ let clicked: boolean = false;
       { once: true },
     );
   });
-  const songText = await fetch(`${import.meta.env.BASE_URL}song1.txt`).then(
-    (res) => res.text(),
-  );
+  const BASE = "https://arinemet.github.io/gradcpt-web-mind/";
+  const songText = await fetch(`${BASE}song1.txt`).then((res) => res.text());
   const stimulusFiles = parseStimOrder(songText);
   const stimulusImages = stimulusFiles.map((fileName) => {
     const img = new Image();
-    img.src = `${import.meta.env.BASE_URL}${fileName}`;
+    img.src = `${BASE}${fileName}`;
     return img;
   });
   let stimulusIndex = 0;
