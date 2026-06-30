@@ -25,11 +25,9 @@ let clicked: boolean = false;
     startScreen.addEventListener(
       "click",
       () => {
-        document.documentElement.requestFullscreen().then(() => {
-          startScreen.style.display = "none";
-          appDiv.style.display = "";
-          resolve();
-        });
+        startScreen.style.display = "none";
+        appDiv.style.display = "";
+        resolve();
       },
       { once: true },
     );
@@ -74,32 +72,8 @@ let clicked: boolean = false;
     }
   }
 
-  function exit() {
-    document.querySelector("#app")!.innerHTML = `
-        <h1>Session incomplete, exited.</h1>
-        <p>You exited from fullscreen. Thank you for participating.</p>
-      `;
-  }
-
-  function checkForFocusLossOrFullscreenLoss() {
-    if (!document.fullscreenElement) {
-      exit();
-    }
-    window.addEventListener("blur", () => {
-      exit();
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        exit();
-      }
-    });
-  }
-
   function frame() {
     const now = performance.now();
-
-    checkForFocusLossOrFullscreenLoss();
 
     if (now - lastSwitch >= 800) {
       previousImage = currentImage;
