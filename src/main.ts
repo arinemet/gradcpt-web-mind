@@ -2,6 +2,14 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
+// for qualtrics testing
+const params = new URLSearchParams(window.location.search);
+const returnUrl = params.get("return");
+
+setTimeout(() => {
+  window.location.href = returnUrl;
+}, 1000);
+
 function parseStimOrder(text: string) {
   return text
     .trim()
