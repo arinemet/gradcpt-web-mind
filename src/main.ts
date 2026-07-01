@@ -7,7 +7,8 @@ const params = new URLSearchParams(window.location.search);
 const returnUrl = params.get("return");
 
 setTimeout(() => {
-  window.location.href = returnUrl;
+  window.location.href =
+    returnUrl ?? "https://arinemet.github.io/gradcpt-web-mind/";
 }, 1000);
 
 function parseStimOrder(text: string) {
