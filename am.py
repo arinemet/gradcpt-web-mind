@@ -21,5 +21,5 @@ modulated = data * carrier
 
 modulated = modulated / np.max(np.abs(modulated))
 modulated = (32767 * modulated).astype(np.int16)
-c
+
 wavfile.write("output.wav", fs, modulated)
