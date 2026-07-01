@@ -2,13 +2,20 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
-// for qualtrics testing
-const params = new URLSearchParams(window.location.search);
-const returnUrl = params.get("return");
+// qualtrics testing
+function testQualtricsReturnRedirect(): void {
+  const urlParams = new URLSearchParams(window.location.search);
+  const participantId: string = urlParams.get("id") || "test_user_123";
 
-setTimeout(() => {
-  window.location.href = returnUrl ?? "https://example.com/";
-}, 1000);
+  const qualtricsBaseURL =
+    "https://neu.co1.qualtrics.com/jfe/form/SV_ctONtgMrZ2YyY6i";
+
+  const testMessage: string = "Hi from GitHub pages";
+
+  window.location.href = `${qualtricsBaseURL}?id=${encodeURIComponent(participantId)}&msg=${encodeURIComponent(testMessage)}`;
+}
+
+testQualtricsReturnRedirect();
 
 function parseStimOrder(text: string) {
   return text
