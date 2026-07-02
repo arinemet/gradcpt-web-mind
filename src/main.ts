@@ -10,7 +10,9 @@ function testQualtricsReturnRedirect(): void {
   const qualtricsBaseURL =
     "https://neu.co1.qualtrics.com/jfe/form/SV_ctONtgMrZ2YyY6i";
 
-  const testMessage: string = "Hi from GitHub pages";
+  const testMessage: string =
+    window.prompt("Example data to be sent to qualtrics") ||
+    "User didn't give message, so i'll just say hi here.";
 
   window.location.href = `${qualtricsBaseURL}?id=${encodeURIComponent(participantId)}&msg=${encodeURIComponent(testMessage)}`;
 }
