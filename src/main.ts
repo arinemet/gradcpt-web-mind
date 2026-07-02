@@ -2,23 +2,6 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 const rtimeDiv = document.querySelector("#rtime")!;
 
-// qualtrics testing
-function testQualtricsReturnRedirect(): void {
-  const urlParams = new URLSearchParams(window.location.search);
-  const participantId: string = urlParams.get("id") || "test_user_123";
-
-  const qualtricsBaseURL =
-    "https://neu.co1.qualtrics.com/jfe/form/SV_ctONtgMrZ2YyY6i";
-
-  const testMessage: string =
-    window.prompt("Example data to be sent to qualtrics") ||
-    "User didn't give message, so i'll just say hi here.";
-
-  window.location.href = `${qualtricsBaseURL}?id=${encodeURIComponent(participantId)}&msg=${encodeURIComponent(testMessage)}`;
-}
-
-testQualtricsReturnRedirect();
-
 function parseStimOrder(text: string) {
   return text
     .trim()
