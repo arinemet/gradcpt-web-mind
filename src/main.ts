@@ -9,12 +9,30 @@ function parseStimOrder(text: string) {
     .map((line) => line.split(",")[1].replace(";", "").trim());
 }
 
-let previousImage: HTMLImageElement;
 let currentImage: HTMLImageElement;
+let previousData: ImageData;
+let currentData: ImageData;
 let lastSwitch = performance.now();
 let startTime: number;
 let city: boolean = true;
 let clicked: boolean = false;
+
+const offCanvas = document.createElement("canvas");
+let offCtx: CanvasRenderingContext2D;
+
+function imageDataFor(img: HTMLImageElement): ImageData {
+  offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+  offCtx.drawImage(img, 0, 0);
+  return offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+}
+
+function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
+  const out = new ImageData(a.width, a.height);
+  for (let i = 0; i < out.data.length; i++) {
+    out.data[i] = a.data[i] + (b.data[i] - a.data[i]) * m;
+  }
+  return out;
+}
 
 (async () => {
   const startScreen = document.querySelector<HTMLDivElement>("#start-screen")!;
@@ -23,14 +41,16 @@ let clicked: boolean = false;
     startScreen.addEventListener(
       "click",
       () => {
-        startScreen.style.display = "none";
-        appDiv.style.display = "";
-        resolve();
+        document.documentElement.requestFullscreen().then(() => {
+          startScreen.style.display = "none";
+          appDiv.style.display = "";
+          resolve();
+        });
       },
       { once: true },
     );
   });
-  const BASE = "https://arinemet.github.io/gradcpt-web-mind/";
+  const BASE = import.meta.env.BASE_URL;
   const songText = await fetch(`${BASE}song1.txt`).then((res) => res.text());
   const stimulusFiles = parseStimOrder(songText);
   const stimulusImages = stimulusFiles.map((fileName) => {
@@ -42,8 +62,13 @@ let clicked: boolean = false;
 
   await Promise.all(stimulusImages.map((img) => img.decode()));
 
+  offCanvas.width = canvas.width;
+  offCanvas.height = canvas.height;
+  offCtx = offCanvas.getContext("2d")!;
+
   currentImage = stimulusImages[stimulusIndex];
-  previousImage = currentImage;
+  currentData = imageDataFor(currentImage);
+  previousData = currentData;
   city = stimulusFiles[stimulusIndex].startsWith("city_");
   ctx.drawImage(currentImage, 0, 0);
 
@@ -54,26 +79,42 @@ let clicked: boolean = false;
     // fade in at 800 ms speed
     const progress = Math.min(elapsed / 800, 1);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // in
-    ctx.globalAlpha = 1 - progress;
-    ctx.drawImage(previousImage, 0, 0);
-
-    // out
-    ctx.globalAlpha = progress;
-    ctx.drawImage(currentImage, 0, 0);
+    ctx.putImageData(dissolve(previousData, currentData, progress), 0, 0);
 
     if (progress < 1) {
       requestAnimationFrame((time) => crossFade(img, time));
     }
   }
 
+  function exit() {
+    document.querySelector("#app")!.innerHTML = `
+        <h1>Session incomplete, exited.</h1>
+        <p>You exited from fullscreen. Thank you for participating.</p>
+      `;
+  }
+
+  function checkForFocusLossOrFullscreenLoss() {
+    if (!document.fullscreenElement) {
+      exit();
+    }
+    window.addEventListener("blur", () => {
+      exit();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        exit();
+      }
+    });
+  }
+
   function frame() {
     const now = performance.now();
 
+    checkForFocusLossOrFullscreenLoss();
+
     if (now - lastSwitch >= 800) {
-      previousImage = currentImage;
+      previousData = currentData;
       if (!clicked && city) {
         rtimeDiv.textContent = `INCORRECT! Did not click.`;
       } else if (!clicked && !city) {
@@ -81,6 +122,7 @@ let clicked: boolean = false;
       }
       stimulusIndex = (stimulusIndex + 1) % stimulusImages.length;
       currentImage = stimulusImages[stimulusIndex];
+      currentData = imageDataFor(currentImage);
       city = stimulusFiles[stimulusIndex].startsWith("city_");
       startTime = 0;
       crossFade(currentImage, now);
