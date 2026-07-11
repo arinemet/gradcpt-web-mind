@@ -16,6 +16,18 @@ let lastSwitch = performance.now();
 let startTime: number;
 let city: boolean = true;
 let clicked: boolean = false;
+let difficulty: number = 0;
+let correctStreak: number = 0;
+
+const difficulties: [number, number][] = [
+  [0, 1],
+  [0.9, 0.9],
+  [0.5, 0.5],
+  [0.4, 0.6],
+  [0.3, 0.7],
+  [0.2, 0.8],
+  [0.1, 0.9],
+];
 
 const offCanvas = document.createElement("canvas");
 let offCtx: CanvasRenderingContext2D;
@@ -72,17 +84,22 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
   city = stimulusFiles[stimulusIndex].startsWith("city_");
   ctx.drawImage(currentImage, 0, 0);
 
-  function crossFade(img: HTMLImageElement, currentTime: number) {
+  function crossFade(
+    img: HTMLImageElement,
+    currentTime: number,
+    difficultyIndex: number,
+  ) {
     if (!startTime) startTime = currentTime;
 
     const elapsed = currentTime - startTime;
-    // fade in at 800 ms speed
     const progress = Math.min(elapsed / 800, 1);
+    const [start, target] = difficulties[difficultyIndex];
+    const m = start + (target - start) * progress;
 
-    ctx.putImageData(dissolve(previousData, currentData, progress), 0, 0);
+    ctx.putImageData(dissolve(previousData, currentData, m), 0, 0);
 
     if (progress < 1) {
-      requestAnimationFrame((time) => crossFade(img, time));
+      requestAnimationFrame((time) => crossFade(img, time, difficultyIndex));
     }
   }
 
@@ -125,7 +142,7 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
       currentData = imageDataFor(currentImage);
       city = stimulusFiles[stimulusIndex].startsWith("city_");
       startTime = 0;
-      crossFade(currentImage, now);
+      crossFade(currentImage, now, difficulty);
       console.log("interval:", (now - lastSwitch).toFixed(1));
       lastSwitch = now;
       clicked = false;
@@ -139,8 +156,15 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
       const rt = performance.now() - lastSwitch;
       if (city) {
         rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms`;
+        correctStreak++;
+        if (correctStreak >= 3 && difficulty < difficulties.length) {
+          difficulty++;
+        }
       } else {
         rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms`;
+        if (difficulty > 0) {
+          difficulty--;
+        }
       }
       clicked = true;
     }
