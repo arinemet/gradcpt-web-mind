@@ -21,12 +21,11 @@ let correctStreak: number = 0;
 
 const difficulties: [number, number][] = [
   [0, 1],
-  [0.9, 0.9],
-  [0.5, 0.5],
-  [0.4, 0.6],
-  [0.3, 0.7],
-  [0.2, 0.8],
   [0.1, 0.9],
+  [0.2, 0.8],
+  [0.3, 0.7],
+  [0.4, 0.6],
+  [0.5, 0.5],
 ];
 
 const offCanvas = document.createElement("canvas");
@@ -84,6 +83,19 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
   city = stimulusFiles[stimulusIndex].startsWith("city_");
   ctx.drawImage(currentImage, 0, 0);
 
+  function incorrect() {
+    if (difficulty > 0) {
+      difficulty--;
+    }
+  }
+
+  function correct() {
+    if (correctStreak >= 3 && difficulty < difficulties.length - 1) {
+      difficulty++;
+      correctStreak = 0;
+    }
+  }
+
   function crossFade(
     img: HTMLImageElement,
     currentTime: number,
@@ -129,13 +141,16 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
     const now = performance.now();
 
     checkForFocusLossOrFullscreenLoss();
+    console.log(difficulty);
 
     if (now - lastSwitch >= 800) {
       previousData = currentData;
       if (!clicked && city) {
         rtimeDiv.textContent = `INCORRECT! Did not click.`;
+        incorrect();
       } else if (!clicked && !city) {
         rtimeDiv.textContent = `CORRECT! Did not click.`;
+        correct();
       }
       stimulusIndex = (stimulusIndex + 1) % stimulusImages.length;
       currentImage = stimulusImages[stimulusIndex];
@@ -157,14 +172,10 @@ function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
       if (city) {
         rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms`;
         correctStreak++;
-        if (correctStreak >= 3 && difficulty < difficulties.length) {
-          difficulty++;
-        }
+        correct();
       } else {
         rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms`;
-        if (difficulty > 0) {
-          difficulty--;
-        }
+        incorrect();
       }
       clicked = true;
     }
