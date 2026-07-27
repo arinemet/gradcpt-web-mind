@@ -176,11 +176,11 @@ function runGradCpt(
         if (e.code === "Space" && !e.repeat && !clicked) {
           const rt = performance.now() - lastSwitch;
           if (city) {
-            rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms`;
+            rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms Difficulty ${difficulty.toFixed(1)}`;
             correctStreak++;
             correct();
           } else {
-            rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms`;
+            rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms Difficulty ${difficulty.toFixed(1)}`;
             incorrect();
           }
           clicked = true;
