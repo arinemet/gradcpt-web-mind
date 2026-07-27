@@ -17,25 +17,41 @@
       min-height: 100svh;
     }
     
+    #start-screen,
+    .message {
+      max-width: 36rem;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+    }
+
     #app {
       text-align: center;
     }
-    
+
     #rtime {
+      min-height: 1.5rem;
       margin-top: 12px;
       font-size: 18px;
     }
     </style>
   </head>
   <body>
-    <div id="start-screen">
-      <h1>This study requires fullscreen.</h1>
-      <p>Click to enter fullscreen and start.</p>
-    </div>
-    <div id="app" style="display:none">
-      <canvas id="canvas" width="256" height="256"></canvas>
-      <div id="rtime"></div>
-    </div>
+    <main class="message" id="loading-message">
+      <p>Loading experiment...</p>
+    </main>
+    <script>
+      const mobile =
+        /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+        (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+      if (mobile) {
+        document.querySelector("#loading-message").innerHTML = `
+          <h1>Desktop device required.</h1>
+          <p>Please open this study on a desktop or laptop computer.</p>
+        `;
+      }
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
