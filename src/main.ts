@@ -1,8 +1,12 @@
-import { initJsPsych, ParameterType, type JsPsych } from "jspsych";
+import * as jsPsychModule from "jspsych";
+import type { JsPsych } from "jspsych";
 import "jspsych/css/jspsych.css";
+
+const { initJsPsych, ParameterType } = jsPsychModule;
 
 declare global {
   interface Window {
+    jsPsychModule?: typeof jsPsychModule;
     jsPsychPavlovia?: unknown;
   }
 }
@@ -294,16 +298,22 @@ async function main() {
   });
 
   const timeline: object[] = [];
+  let pavloviaPlugin: unknown;
 
   if (onPavlovia) {
+    window.jsPsychModule = jsPsychModule;
     await loadScript("https://pavlovia.org/lib/jspsych-7-pavlovia-2022.1.1.js");
-    timeline.push({ type: window.jsPsychPavlovia, command: "init" });
+    pavloviaPlugin = window.jsPsychPavlovia;
+    if (typeof pavloviaPlugin !== "function") {
+      throw new Error("could not load the Pavlovia jsPsych plugin");
+    }
+    timeline.push({ type: pavloviaPlugin, command: "init" });
   }
 
   timeline.push({ type: GradCptPlugin, stimulusFiles });
 
   if (onPavlovia) {
-    timeline.push({ type: window.jsPsychPavlovia, command: "finish" });
+    timeline.push({ type: pavloviaPlugin, command: "finish" });
   }
 
   await jsPsych.run(timeline);
