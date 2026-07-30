@@ -118,14 +118,17 @@ function runGradCpt(
       let startTime = 0;
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
       let clicked = false;
+      let rt: number | null = null;
       let difficulty = 0;
       let correctStreak = 0;
+      let difficultyBefore = difficulty;
       let ended = false;
       let frameId = 0;
 
       ctx.drawImage(currentImage, 0, 0);
 
       function incorrect() {
+        correctStreak = 0;
         if (difficulty > 0) {
           difficulty--;
         }
@@ -169,12 +172,26 @@ function runGradCpt(
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompleted = reason === null;
         jsPsych.finishTrial();
+        setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
+      }
+
+      function saveData(now: number) {
+        jsPsych.data.write({
+          trial_type: "stimulus",
+          stimulus: stimulusFiles[stimulusIndex],
+          response: clicked ? "space" : null,
+          rt,
+          correct: clicked === city,
+          difficulty_before: difficultyBefore,
+          difficulty_after: difficulty,
+          duration: now - lastSwitch,
+        });
       }
 
       function onKeyDown(e: KeyboardEvent) {
         if (e.code === "Escape") finish("escape pressed");
         if (e.code === "Space" && !e.repeat && !clicked) {
-          const rt = performance.now() - lastSwitch;
+          rt = performance.now() - lastSwitch;
           if (city) {
             rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms Difficulty ${difficulty.toFixed(1)}`;
             correctStreak++;
@@ -216,6 +233,7 @@ function runGradCpt(
             rtimeDiv.textContent = `CORRECT! Did not click.`;
             correct();
           }
+          saveData(now);
           if (stimulusIndex === stimulusFiles.length - 1) {
             finish(null);
             return;
@@ -225,10 +243,12 @@ function runGradCpt(
           currentImage = stimulusImages[stimulusIndex];
           currentData = imageDataFor(currentImage);
           city = stimulusFiles[stimulusIndex].startsWith("city_");
-          startTime = 0;
+          lastSwitch += 800;
+          startTime = lastSwitch;
           crossFade(currentImage, now, difficulty);
-          lastSwitch = now;
           clicked = false;
+          rt = null;
+          difficultyBefore = difficulty;
         }
         frameId = requestAnimationFrame(frame);
       }
