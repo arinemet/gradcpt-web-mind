@@ -5,45 +5,61 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>gradcpt-web-mind</title>
+    <!-- 1) Import jQuery from Google CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <!-- 2) Import HeadphoneCheck.js (minified) from McDermott S3 server -->
+    <script
+      type="text/javascript"
+      src="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheck.min.js"
+    ></script>
+    <!-- 2) Import HeadphoneCheck.css from McDermott S3 server -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheckStyle.css"
+    />
+
     <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100svh;
-    }
-    
-    #start-screen,
-    .message {
-      max-width: 36rem;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-    }
+      body {
+        margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100svh;
+      }
 
-    #app {
-      text-align: center;
-    }
+      #start-screen,
+      .message {
+        max-width: 36rem;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+      }
 
-    #rtime {
-      min-height: 1.5rem;
-      margin-top: 12px;
-      font-size: 18px;
-    }
+      #app {
+        text-align: center;
+      }
+
+      #rtime {
+        min-height: 1.5rem;
+        margin-top: 12px;
+        font-size: 18px;
+      }
     </style>
   </head>
   <body>
+    <div id="hc-container"></div>
     <main class="message" id="loading-message">
       <p>Loading experiment...</p>
     </main>
     <script>
       const mobile =
         /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-        (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+        (/Macintosh/i.test(navigator.userAgent) &&
+          navigator.maxTouchPoints > 1);
 
       if (mobile) {
         document.querySelector("#loading-message").innerHTML = `

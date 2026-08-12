@@ -5,6 +5,9 @@ import { loadScript, parseStimOrder } from "./loader.ts";
 
 const { initJsPsych } = jsPsychModule;
 
+declare const HeadphoneCheck: any;
+declare const $: any;
+
 declare global {
   interface Window {
     jsPsychModule?: typeof jsPsychModule;
@@ -86,7 +89,17 @@ async function main() {
   await jsPsych.run(timeline);
 }
 
-main().catch((error: unknown) => {
-  document.body.textContent =
-    error instanceof Error ? error.message : String(error);
+$(document).ready(() => {
+  $(document).on("hcHeadphoneCheckEnd", (_event: unknown, data: any) => {
+    if (data.didPass) {
+      main();
+    } else {
+      document.querySelector("#loading-message")!.innerHTML = `
+        <h1>Headphone check failed.</h1>
+        <p>Please use headphones and reload the page to try again.</p>
+      `;
+    }
+  });
+
+  HeadphoneCheck.runHeadphoneCheck({});
 });
