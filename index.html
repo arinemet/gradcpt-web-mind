@@ -55,19 +55,6 @@
     <main class="message" id="loading-message">
       <p>Loading experiment...</p>
     </main>
-    <script>
-      const mobile =
-        /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-        (/Macintosh/i.test(navigator.userAgent) &&
-          navigator.maxTouchPoints > 1);
-
-      if (mobile) {
-        document.querySelector("#loading-message").innerHTML = `
-          <h1>Desktop device required.</h1>
-          <p>Please open this study on a desktop or laptop computer.</p>
-        `;
-      }
-    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -17,21 +17,19 @@ declare global {
 
 const blockMobileUsers = (): void => {
   const userAgent: string = navigator.userAgent;
-  const isMobile: boolean = /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent);
-
-  if (isMobile) {
-    const warningMessage: string = `
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent) ||
+    (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
+  const warningMessage: string = `
       <div style="text-align:center; padding:50px; font-family:sans-serif;">
         <h1>Desktop Only</h1>
         <p>This study cannot be completed from a mobile device.</p>
       </div>
     `;
 
+  if (isMobile) {
+    document.documentElement.innerHTML = warningMessage;
     throw new Error("Device needs to be desktop");
-
-    if (document.documentElement) {
-      document.documentElement.innerHTML = warningMessage;
-    }
   }
 };
 
@@ -39,20 +37,6 @@ blockMobileUsers();
 
 async function main() {
   document.querySelector("#loading-message")?.remove();
-
-  const mobile =
-    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-    (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-
-  if (mobile) {
-    document.body.innerHTML = `
-      <main class="message">
-        <h1>Desktop device required.</h1>
-        <p>Please open this study on a desktop or laptop computer.</p>
-      </main>
-    `;
-    return;
-  }
 
   const BASE = import.meta.env.BASE_URL;
   const songText = await fetch(`${BASE}song1.txt`).then((res) => res.text());
