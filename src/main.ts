@@ -5,7 +5,7 @@ import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
-// import { HeadphoneCheckPlugin } from "./headphone-check.ts";
+import { HeadphoneCheckPlugin } from "./headphone-check.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -124,7 +124,7 @@ If you want a copy of this consent for your records, you can print it from the s
       }
     },
   });
-  // timeline.push({ type: HeadphoneCheckPlugin });
+  timeline.push({ type: HeadphoneCheckPlugin });
   timeline.push({
     type: SongPickerPlugin,
     songs: [
