@@ -1,7 +1,7 @@
 export async function amplitudeModulation(
   fileName: string,
   carrierFreq: number,
-  modulationIndex: number,
+  depth: number,
 ) {
   const audioCtx = new AudioContext();
   const response = await fetch(fileName);
@@ -11,26 +11,14 @@ export async function amplitudeModulation(
   const numSamples = buffer.length;
   // sample rate of the audio
   const sr = buffer.sampleRate;
-  let max = 0;
 
   for (let i = 0; i < numSamples; i++) {
     const t = i / sr;
-    const carrier =
-      1 + modulationIndex * Math.cos(2 * Math.PI * carrierFreq * t);
+    const carrier = 0.5 + depth * Math.cos(2 * Math.PI * carrierFreq * t);
 
     for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
       const samples = buffer.getChannelData(channel);
       samples[i] *= carrier;
-      max = Math.max(max, Math.abs(samples[i]));
-    }
-  }
-
-  if (max > 0) {
-    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-      const samples = buffer.getChannelData(channel);
-      for (let i = 0; i < numSamples; i++) {
-        samples[i] /= max;
-      }
     }
   }
 

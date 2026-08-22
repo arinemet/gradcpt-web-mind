@@ -1,5 +1,8 @@
 import { ParameterType } from "jspsych";
 import type { JsPsych } from "jspsych";
+import { amplitudeModulation } from "./audio.ts";
+import { modulationSettings } from "./modulation-controller.ts";
+import { loadStimuli } from "./loader.ts";
 
 const difficulties: [number, number][] = [
   [0, 1],
@@ -16,6 +19,7 @@ function runGradCpt(
   jsPsych: JsPsych,
   displayElement: HTMLElement,
   stimulusFiles: string[],
+  songIndex: number,
 ) {
   sessionCompleted = false;
   displayElement.innerHTML = `
@@ -55,19 +59,26 @@ function runGradCpt(
   startScreen.addEventListener(
     "click",
     async () => {
-      await document.documentElement.requestFullscreen();
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
       startScreen.style.display = "none";
       appDiv.style.display = "";
 
-      const BASE = import.meta.env.BASE_URL;
-      const stimulusImages = stimulusFiles.map((fileName) => {
-        const img = new Image();
-        img.src = `${BASE}${fileName}`;
-        return img;
-      });
+      const song = modulationSettings[songIndex];
+      if (!song) {
+        throw new Error(
+          `Missing modulation settings for song ${songIndex + 1}`,
+        );
+      }
+      const stimulusImages = loadStimuli(stimulusFiles);
       let stimulusIndex = 0;
-
       await Promise.all(stimulusImages.map((img) => img.decode()));
+      const songPlayer = await amplitudeModulation(
+        song.file,
+        song.frequency,
+        song.depth,
+      );
 
       offCanvas.width = canvas.width;
       offCanvas.height = canvas.height;
@@ -86,8 +97,10 @@ function runGradCpt(
       let difficultyBefore = difficulty;
       let ended = false;
       let frameId = 0;
+      let crossFadeFrameId = 0;
 
       ctx.drawImage(currentImage, 0, 0);
+      songPlayer.start();
 
       function incorrect() {
         correctStreak = 0;
@@ -103,11 +116,9 @@ function runGradCpt(
         }
       }
 
-      function crossFade(
-        img: HTMLImageElement,
-        currentTime: number,
-        difficultyIndex: number,
-      ) {
+      function crossFade(currentTime: number, difficultyIndex: number) {
+        if (ended) return;
+
         if (!startTime) startTime = currentTime;
 
         const elapsed = currentTime - startTime;
@@ -118,8 +129,8 @@ function runGradCpt(
         ctx.putImageData(dissolve(previousData, currentData, m), 0, 0);
 
         if (progress < 1) {
-          requestAnimationFrame((time) =>
-            crossFade(img, time, difficultyIndex),
+          crossFadeFrameId = requestAnimationFrame((time) =>
+            crossFade(time, difficultyIndex),
           );
         }
       }
@@ -128,6 +139,8 @@ function runGradCpt(
         if (ended) return;
         ended = true;
         cancelAnimationFrame(frameId);
+        cancelAnimationFrame(crossFadeFrameId);
+        songPlayer.stop();
         document.removeEventListener("keydown", onKeyDown);
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
@@ -140,6 +153,7 @@ function runGradCpt(
       function saveData(now: number) {
         jsPsych.data.write({
           trial_type: "stimulus",
+          is_city: city,
           stimulus: stimulusFiles[stimulusIndex],
           response: clicked ? "space" : null,
           rt,
@@ -147,6 +161,10 @@ function runGradCpt(
           difficulty_before: difficultyBefore,
           difficulty_after: difficulty,
           duration: now - lastSwitch,
+          gradcpt_run: songIndex + 1,
+          song_name: song.name,
+          modulation_depth: song.depth,
+          modulation_frequency: song.frequency,
         });
       }
 
@@ -192,6 +210,7 @@ function runGradCpt(
             rtimeDiv.textContent = `INCORRECT! Did not click.`;
             incorrect();
           } else if (!clicked && !city) {
+            correctStreak++;
             rtimeDiv.textContent = `CORRECT! Did not click.`;
             correct();
           }
@@ -207,7 +226,8 @@ function runGradCpt(
           city = stimulusFiles[stimulusIndex].startsWith("city_");
           lastSwitch += 800;
           startTime = lastSwitch;
-          crossFade(currentImage, now, difficulty);
+          cancelAnimationFrame(crossFadeFrameId);
+          crossFade(now, difficulty);
           clicked = false;
           rt = null;
           difficultyBefore = difficulty;
@@ -226,6 +246,7 @@ export class GradCptPlugin {
     name: "gradcpt",
     parameters: {
       stimulusFiles: { type: ParameterType.OBJECT, default: undefined },
+      songIndex: { type: ParameterType.INT, default: undefined },
     },
   };
 
@@ -235,7 +256,15 @@ export class GradCptPlugin {
     this.jsPsych = jsPsych;
   }
 
-  trial(displayElement: HTMLElement, trial: { stimulusFiles: string[] }) {
-    runGradCpt(this.jsPsych, displayElement, trial.stimulusFiles);
+  trial(
+    displayElement: HTMLElement,
+    trial: { stimulusFiles: string[]; songIndex: number },
+  ) {
+    runGradCpt(
+      this.jsPsych,
+      displayElement,
+      trial.stimulusFiles,
+      trial.songIndex,
+    );
   }
 }

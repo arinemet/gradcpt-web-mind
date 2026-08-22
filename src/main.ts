@@ -2,11 +2,12 @@ import * as jsPsychModule from "jspsych";
 import "jspsych/css/jspsych.css";
 import { GradCptPlugin, sessionCompleted } from "./gradcpt.ts";
 import { loadScript, parseStimOrder } from "./loader.ts";
+import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
+import { ModulationControllerPlugin } from "./modulation-controller.ts";
+import { SongPickerPlugin } from "./song-picker.ts";
+// import { HeadphoneCheckPlugin } from "./headphone-check.ts";
 
 const { initJsPsych } = jsPsychModule;
-
-declare const HeadphoneCheck: any;
-declare const $: any;
 
 declare global {
   interface Window {
@@ -36,11 +37,15 @@ const blockMobileUsers = (): void => {
 blockMobileUsers();
 
 async function main() {
-  document.querySelector("#loading-message")?.remove();
-
   const BASE = import.meta.env.BASE_URL;
-  const songText = await fetch(`${BASE}song1.txt`).then((res) => res.text());
-  const stimulusFiles = parseStimOrder(songText);
+  const orderFiles = ["song5.txt", "song6.txt", "song7.txt", "song8.txt"];
+  const stimulusFileSets: string[][] = [];
+
+  for (const orderFile of orderFiles) {
+    const response = await fetch(`${BASE}${orderFile}`);
+    const text = await response.text();
+    stimulusFileSets.push(parseStimOrder(text));
+  }
   const onPavlovia = location.hostname === "run.pavlovia.org";
   const jsPsych = initJsPsych({
     on_finish: () => {
@@ -64,7 +69,181 @@ async function main() {
     timeline.push({ type: pavloviaPlugin, command: "init" });
   }
 
-  timeline.push({ type: GradCptPlugin, stimulusFiles });
+  timeline.push({
+    type: SurveyMultiChoicePlugin,
+    preamble: `
+    <div class="consent-box">
+    Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information. 
+
+Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating. 
+
+Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing. 
+
+Why is this research study being done? This study is part of the research to better understand how musical training may influence the brain and cognition 
+
+What will I be asked to do? You will be asked to complete several questionnaires that relate to your handedness, musical training and engagement, health history, demographics, and a questionnaire that determines your musical experience. Then, you will proceed with computerized listening and/or cognitive tests. This study will take between 45-60 minutes. 
+
+Will I benefit by being in this research? There will be no direct benefit to you for taking part in this study. However, information gained from this study may help scientists to better understand how the brain responds to music and music training. You will be compensated financially for your participation. 
+
+Who will see the information about me? Your participation in this study is confidential. No reports or publications will identify you in any way as being part of this project. All responses will be submitted using an anonymous identification number. The information you give us will be strictly confidential and will not be made available to anyone who is not directly involved in analyzing the data. 
+
+Can I stop my participation in this study? Your participation in this research is completely voluntary. You do not have to participate if you do not want to and you can refuse to answer any question. Even if you begin the study, you may quit at any time. 
+
+Who can I contact if I have questions or problems? If you have any questions about this study, please feel free to contact Dr. Psyche Loui (mindlabwes@gmail.com), the Principal Investigator. 
+
+Who can I contact about my rights as a participant? If you have any questions about your rights in this research, you may contact Nan C. Regina, Director, Human Subject Research Protection, Mail Stop: 560-177, 360 Huntington Avenue, Northeastern University, Boston, MA 02115. Tel: 617.373.4588, Email: n.regina@neu.edu. You may call anonymously if you wish. 
+
+<h2>Consent</h2>
+If you want a copy of this consent for your records, you can print it from the screen. 
+
+<strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
+    </div>
+`,
+    questions: [
+      {
+        prompt: "",
+        name: "consent",
+        options: ["I Agree", "I Disagree"],
+        required: true,
+      },
+    ],
+
+    button_label: "Continue",
+    on_finish: (data: { response: { consent: string } }) => {
+      if (data.response.consent === "I Disagree") {
+        jsPsych.endExperiment("You chose to not participate");
+      }
+    },
+  });
+  // timeline.push({ type: HeadphoneCheckPlugin });
+  timeline.push({
+    type: SongPickerPlugin,
+    songs: [
+      { name: "Adele: Hello", file: `${BASE}Adele_Hello_3.wav` },
+      {
+        name: "Adele: Someone Like You",
+        file: `${BASE}Adele_SomeoneLikeYou_3.wav`,
+      },
+      {
+        name: "Alicia Keys: Girl on Fire",
+        file: `${BASE}AliciaKeys_GirlOnFire_3.wav`,
+      },
+      {
+        name: "Avril Lavigne: Complicated",
+        file: `${BASE}AvrilLavigne_Complicated_3.wav`,
+      },
+      {
+        name: "Bill Medley & Jennifer Warnes: I've Had the Time of My Life",
+        file: `${BASE}BillMedley_JenniferWarnes_I'veHadTheTimeOfMyLife_3.wav`,
+      },
+      {
+        name: "Bon Jovi: Livin' on a Prayer",
+        file: `${BASE}BonJovi_LivinOnAPrayer_3.wav`,
+      },
+      {
+        name: "Boyz II Men: I'll Make Love to You",
+        file: `${BASE}Boyz2Men_I'llMakeLoveToYou_3.wav`,
+      },
+      {
+        name: "Bruno Mars: Versace on the Floor",
+        file: `${BASE}BrunoMars_VersaceOnTheFloor_3.wav`,
+      },
+      {
+        name: "Bruno Mars: When I Was Your Man",
+        file: `${BASE}BrunoMars_WhenIWasYourMan_3.wav`,
+      },
+      {
+        name: "Christina Aguilera: Beautiful",
+        file: `${BASE}ChristinaAguilera_Beautiful_3.wav`,
+      },
+      {
+        name: "Death Cab for Cutie: I Will Follow You into the Dark",
+        file: `${BASE}DeathCabForCutie_IWillFollowYouIntoTheDark_3.wav`,
+      },
+      { name: "Ed Sheeran: Perfect", file: `${BASE}EdSheeran_Perfect_3.wav` },
+      {
+        name: "Ed Sheeran: Thinking Out Loud",
+        file: `${BASE}EdSheeran_ThinkingOutLoud_3.wav`,
+      },
+      {
+        name: "Eric Carmen: All by Myself",
+        file: `${BASE}EricCarmen_AllByMyself_3.wav`,
+      },
+      {
+        name: "John Legend: All of Me",
+        file: `${BASE}JohnLegend_AllOfMe_3.wav`,
+      },
+      {
+        name: "Julia Michaels: Issues",
+        file: `${BASE}JuliaMichaels_Issues_3.wav`,
+      },
+      {
+        name: "Kelly Clarkson: Because of You",
+        file: `${BASE}KellyClarkson_BecauseOfYou_3.wav`,
+      },
+      {
+        name: "Kelly Clarkson: Since U Been Gone",
+        file: `${BASE}KellyClarkson_SinceUBeenGone_3.wav`,
+      },
+      { name: "Kesha: Praying", file: `${BASE}Kesha_Praying_3.wav` },
+      {
+        name: "Lady Antebellum: Need You Now",
+        file: `${BASE}LadyAntebellum_NeedYouNow_3.wav`,
+      },
+      { name: "Lady Gaga: Shallow", file: `${BASE}LadyGaga_Shallow_3.wav` },
+      {
+        name: "Miley Cyrus: Wrecking Ball",
+        file: `${BASE}MileyCyrus_WreckingBall_3.wav`,
+      },
+      {
+        name: "Pink: Just Give Me a Reason",
+        file: `${BASE}Pink_JustGiveMeAReason_3.wav`,
+      },
+      {
+        name: "Rufus Wainwright: Hallelujah",
+        file: `${BASE}RufusWainwright_Hallelujah_3.wav`,
+      },
+      {
+        name: "Sam Smith: Stay with Me",
+        file: `${BASE}SamSmith_StayWithMe_3.wav`,
+      },
+      {
+        name: "Sara Bareilles: Love Song",
+        file: `${BASE}SaraBareilles_LoveSong_3.wav`,
+      },
+      {
+        name: "Survivor: Eye of the Tiger",
+        file: `${BASE}Survivor_EyeOfTheTiger_3.wav`,
+      },
+      {
+        name: "Plain White T's: Hey There Delilah",
+        file: `${BASE}ThePlainWhiteTs_HeyThereDelilah_3.wav`,
+      },
+      { name: "Toto: Africa", file: `${BASE}Toto_Africa_3.wav` },
+      {
+        name: "Whitney Houston: I Have Nothing",
+        file: `${BASE}WhitneyHouston_IHaveNothing_3.wav`,
+      },
+      {
+        name: "Whitney Houston: I Will Always Love You",
+        file: `${BASE}WhitneyHouston_IWillAlwaysLoveYou_3.wav`,
+      },
+      {
+        name: "Wiz Khalifa: See You Again",
+        file: `${BASE}WizKhalifa_SeeYouAgain_3.wav`,
+      },
+    ],
+  });
+  timeline.push({
+    type: ModulationControllerPlugin,
+  });
+  for (let songIndex = 0; songIndex < 4; songIndex++) {
+    timeline.push({
+      type: GradCptPlugin,
+      stimulusFiles: stimulusFileSets[songIndex],
+      songIndex,
+    });
+  }
 
   if (onPavlovia) {
     timeline.push({ type: pavloviaPlugin, command: "finish" });
@@ -74,16 +253,5 @@ async function main() {
 }
 
 $(document).ready(() => {
-  $(document).on("hcHeadphoneCheckEnd", (_event: unknown, data: any) => {
-    if (data.didPass) {
-      main();
-    } else {
-      document.querySelector("#loading-message")!.innerHTML = `
-        <h1>Headphone check failed.</h1>
-        <p>Please use headphones and reload the page to try again.</p>
-      `;
-    }
-  });
-
-  HeadphoneCheck.runHeadphoneCheck({});
+  void main();
 });
