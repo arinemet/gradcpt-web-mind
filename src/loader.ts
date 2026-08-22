@@ -1,4 +1,35 @@
-const BASE = import.meta.env.BASE_URL;
+const audioFiles = new Map<string, Promise<ArrayBuffer>>();
+const images = new Map<string, Promise<HTMLImageElement>>();
+
+export function loadImage(path: string): Promise<HTMLImageElement> {
+  if (!images.has(path)) {
+    const loadingImage = new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error(`could not load ${path}`));
+
+      image.src = path;
+    });
+    images.set(path, loadingImage);
+  }
+  return images.get(path)!;
+}
+
+export function loadAudio(path: string): Promise<ArrayBuffer> {
+  if (!audioFiles.has(path)) {
+    const loadingAudio = fetch(path).then((response) => {
+      if (!response.ok) {
+        throw new Error(`could not load ${path}: ${response.status}`);
+      }
+
+      return response.arrayBuffer();
+    });
+    audioFiles.set(path, loadingAudio);
+  }
+  return audioFiles.get(path)!;
+}
+
 export function parseStimOrder(text: string) {
   return text
     .trim()
@@ -13,21 +44,5 @@ export function loadScript(source: string): Promise<void> {
     script.onload = () => resolve();
     script.onerror = () => reject(new Error(`could not load ${source}`));
     document.head.append(script);
-  });
-}
-
-export function loadStimuli(stimulusFiles: String[]) {
-  return stimulusFiles.map((fileName) => {
-    const img = new Image();
-    img.src = `${BASE}${fileName}`;
-    return img;
-  });
-}
-
-export function loadSongs(songFiles: String[]) {
-  return songFiles.map((fileName) => {
-    const img = new Image();
-    img.src = `${BASE}${fileName}`;
-    return img;
   });
 }

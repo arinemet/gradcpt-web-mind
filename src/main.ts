@@ -1,7 +1,7 @@
 import * as jsPsychModule from "jspsych";
 import "jspsych/css/jspsych.css";
 import { GradCptPlugin, sessionCompleted } from "./gradcpt.ts";
-import { loadScript, parseStimOrder } from "./loader.ts";
+import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
@@ -46,6 +46,15 @@ async function main() {
     const text = await response.text();
     stimulusFileSets.push(parseStimOrder(text));
   }
+
+  const imageFiles = [...new Set(stimulusFileSets.flat())];
+  const loadingMessage = document.querySelector("#loading-message")!;
+  loadingMessage.textContent = "Loading images…";
+  await Promise.all(
+    imageFiles.map((fileName) => loadImage(`${BASE}${fileName}`)),
+  );
+  loadingMessage.textContent = "";
+
   const onPavlovia = location.hostname === "run.pavlovia.org";
   const jsPsych = initJsPsych({
     on_finish: () => {

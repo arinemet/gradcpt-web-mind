@@ -1,4 +1,5 @@
 import type { JsPsych } from "jspsych";
+import { loadAudio } from "./loader.ts";
 
 export interface Song {
   name: string;
@@ -92,7 +93,7 @@ export class SongPickerPlugin {
       });
     });
 
-    displayElement.querySelector("#continue")!.addEventListener("click", () => {
+    displayElement.querySelector("#continue")!.addEventListener("click", async () => {
       const indexes = checkboxes
         .filter((checkbox) => checkbox.checked)
         .map((checkbox) => Number(checkbox.value));
@@ -102,13 +103,22 @@ export class SongPickerPlugin {
         return;
       }
 
-      selectedSongs.splice(
-        0,
-        selectedSongs.length,
-        ...indexes.map((index) => trial.songs[index]),
-      );
-      stopPreview();
-      this.jsPsych.finishTrial({ selected_songs: selectedSongs });
+      const songs = indexes.map((index) => trial.songs[index]);
+      const continueButton =
+        displayElement.querySelector<HTMLButtonElement>("#continue")!;
+
+      continueButton.disabled = true;
+      error.textContent = "Loading selected songs…";
+
+      try {
+        await Promise.all(songs.map((song) => loadAudio(song.file)));
+        selectedSongs.splice(0, selectedSongs.length, ...songs);
+        stopPreview();
+        this.jsPsych.finishTrial({ selected_songs: selectedSongs });
+      } catch {
+        error.textContent = "The selected songs could not be loaded.";
+        continueButton.disabled = false;
+      }
     });
   }
 }

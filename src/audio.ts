@@ -1,12 +1,13 @@
+import { loadAudio } from "./loader.ts";
+
 export async function amplitudeModulation(
   fileName: string,
   carrierFreq: number,
   depth: number,
 ) {
   const audioCtx = new AudioContext();
-  const response = await fetch(fileName);
-  const data = await response.arrayBuffer();
-  const buffer = await audioCtx.decodeAudioData(data);
+  const data = await loadAudio(fileName);
+  const buffer = await audioCtx.decodeAudioData(data.slice(0));
 
   const numSamples = buffer.length;
   // sample rate of the audio

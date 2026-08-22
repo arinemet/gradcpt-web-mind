@@ -2,7 +2,7 @@ import { ParameterType } from "jspsych";
 import type { JsPsych } from "jspsych";
 import { amplitudeModulation } from "./audio.ts";
 import { modulationSettings } from "./modulation-controller.ts";
-import { loadStimuli } from "./loader.ts";
+import { loadImage } from "./loader.ts";
 
 const difficulties: [number, number][] = [
   [0, 1],
@@ -71,9 +71,11 @@ function runGradCpt(
           `Missing modulation settings for song ${songIndex + 1}`,
         );
       }
-      const stimulusImages = loadStimuli(stimulusFiles);
+      const BASE = import.meta.env.BASE_URL;
+      const stimulusImages = await Promise.all(
+        stimulusFiles.map((fileName) => loadImage(`${BASE}${fileName}`)),
+      );
       let stimulusIndex = 0;
-      await Promise.all(stimulusImages.map((img) => img.decode()));
       const songPlayer = await amplitudeModulation(
         song.file,
         song.frequency,
