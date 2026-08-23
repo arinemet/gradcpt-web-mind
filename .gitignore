@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .env
+*.wav
+/audio-source/
 
 # Editor directories and files
 .vscode/*
@@ -27,3 +29,4 @@ dist-ssr
 # For my sake
 DESIGN.md
 gradcpt-web-mind.maxpat
+*.wav
