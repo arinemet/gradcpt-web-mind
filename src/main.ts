@@ -6,6 +6,7 @@ import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
 import { HeadphoneCheckPlugin } from "./headphone-check.ts";
+import { DropdownPlugin } from "./dropdown.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -77,9 +78,18 @@ async function main() {
     timeline.push({ type: pavloviaPlugin, command: "init" });
   }
 
-  timeline.push({
-    type: SurveyMultiChoicePlugin,
-    preamble: `
+  let selectedOption = "";
+
+  const menuTrial = {
+    type: DropdownPlugin,
+    on_finish: (data: { selected_option: string }) => {
+      selectedOption = data.selected_option;
+    },
+  };
+
+  const consentTrial = {
+      type: SurveyMultiChoicePlugin,
+      preamble: `
     <div class="consent-box">
     Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information. 
 
@@ -107,151 +117,178 @@ If you want a copy of this consent for your records, you can print it from the s
 <strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
     </div>
 `,
-    questions: [
-      {
-        prompt: "",
-        name: "consent",
-        options: ["I Agree", "I Disagree"],
-        required: true,
-      },
-    ],
+      questions: [
+        {
+          prompt: "",
+          name: "consent",
+          options: ["I Agree", "I Disagree"],
+          required: true,
+        },
+      ],
 
-    button_label: "Continue",
-    on_finish: (data: { response: { consent: string } }) => {
-      if (data.response.consent === "I Disagree") {
-        jsPsych.endExperiment("You chose to not participate");
-      }
-    },
-  });
-  timeline.push({ type: HeadphoneCheckPlugin });
+      button_label: "Continue",
+      on_finish: (data: { response: { consent: string } }) => {
+        if (data.response.consent === "I Disagree") {
+          jsPsych.endExperiment("You chose to not participate");
+        }
+      },
+  };
+
+  const headphoneCheckTrial = { type: HeadphoneCheckPlugin };
+
+  const songPickerTrial = {
+      type: SongPickerPlugin,
+      songs: [
+        { name: "Adele: Hello", file: `${BASE}Adele_Hello_3.mp3` },
+        {
+          name: "Adele: Someone Like You",
+          file: `${BASE}Adele_SomeoneLikeYou_3.mp3`,
+        },
+        {
+          name: "Alicia Keys: Girl on Fire",
+          file: `${BASE}AliciaKeys_GirlOnFire_3.mp3`,
+        },
+        {
+          name: "Avril Lavigne: Complicated",
+          file: `${BASE}AvrilLavigne_Complicated_3.mp3`,
+        },
+        {
+          name: "Bill Medley & Jennifer Warnes: I've Had the Time of My Life",
+          file: `${BASE}BillMedley_JenniferWarnes_I'veHadTheTimeOfMyLife_3.mp3`,
+        },
+        {
+          name: "Bon Jovi: Livin' on a Prayer",
+          file: `${BASE}BonJovi_LivinOnAPrayer_3.mp3`,
+        },
+        {
+          name: "Boyz II Men: I'll Make Love to You",
+          file: `${BASE}Boyz2Men_I'llMakeLoveToYou_3.mp3`,
+        },
+        {
+          name: "Bruno Mars: Versace on the Floor",
+          file: `${BASE}BrunoMars_VersaceOnTheFloor_3.mp3`,
+        },
+        {
+          name: "Bruno Mars: When I Was Your Man",
+          file: `${BASE}BrunoMars_WhenIWasYourMan_3.mp3`,
+        },
+        {
+          name: "Christina Aguilera: Beautiful",
+          file: `${BASE}ChristinaAguilera_Beautiful_3.mp3`,
+        },
+        {
+          name: "Death Cab for Cutie: I Will Follow You into the Dark",
+          file: `${BASE}DeathCabForCutie_IWillFollowYouIntoTheDark_3.mp3`,
+        },
+        { name: "Ed Sheeran: Perfect", file: `${BASE}EdSheeran_Perfect_3.mp3` },
+        {
+          name: "Ed Sheeran: Thinking Out Loud",
+          file: `${BASE}EdSheeran_ThinkingOutLoud_3.mp3`,
+        },
+        {
+          name: "Eric Carmen: All by Myself",
+          file: `${BASE}EricCarmen_AllByMyself_3.mp3`,
+        },
+        {
+          name: "John Legend: All of Me",
+          file: `${BASE}JohnLegend_AllOfMe_3.mp3`,
+        },
+        {
+          name: "Julia Michaels: Issues",
+          file: `${BASE}JuliaMichaels_Issues_3.mp3`,
+        },
+        {
+          name: "Kelly Clarkson: Because of You",
+          file: `${BASE}KellyClarkson_BecauseOfYou_3.mp3`,
+        },
+        {
+          name: "Kelly Clarkson: Since U Been Gone",
+          file: `${BASE}KellyClarkson_SinceUBeenGone_3.mp3`,
+        },
+        { name: "Kesha: Praying", file: `${BASE}Kesha_Praying_3.mp3` },
+        {
+          name: "Lady Antebellum: Need You Now",
+          file: `${BASE}LadyAntebellum_NeedYouNow_3.mp3`,
+        },
+        { name: "Lady Gaga: Shallow", file: `${BASE}LadyGaga_Shallow_3.mp3` },
+        {
+          name: "Miley Cyrus: Wrecking Ball",
+          file: `${BASE}MileyCyrus_WreckingBall_3.mp3`,
+        },
+        {
+          name: "Pink: Just Give Me a Reason",
+          file: `${BASE}Pink_JustGiveMeAReason_3.mp3`,
+        },
+        {
+          name: "Rufus Wainwright: Hallelujah",
+          file: `${BASE}RufusWainwright_Hallelujah_3.mp3`,
+        },
+        {
+          name: "Sam Smith: Stay with Me",
+          file: `${BASE}SamSmith_StayWithMe_3.mp3`,
+        },
+        {
+          name: "Sara Bareilles: Love Song",
+          file: `${BASE}SaraBareilles_LoveSong_3.mp3`,
+        },
+        {
+          name: "Survivor: Eye of the Tiger",
+          file: `${BASE}Survivor_EyeOfTheTiger_3.mp3`,
+        },
+        {
+          name: "Plain White T's: Hey There Delilah",
+          file: `${BASE}ThePlainWhiteTs_HeyThereDelilah_3.mp3`,
+        },
+        { name: "Toto: Africa", file: `${BASE}Toto_Africa_3.mp3` },
+        {
+          name: "Whitney Houston: I Have Nothing",
+          file: `${BASE}WhitneyHouston_IHaveNothing_3.mp3`,
+        },
+        {
+          name: "Whitney Houston: I Will Always Love You",
+          file: `${BASE}WhitneyHouston_IWillAlwaysLoveYou_3.mp3`,
+        },
+        {
+          name: "Wiz Khalifa: See You Again",
+          file: `${BASE}WizKhalifa_SeeYouAgain_3.mp3`,
+        },
+      ],
+  };
+
+  const modulationControllerTrial = { type: ModulationControllerPlugin };
+
+  const gradCptTrial = {
+    type: GradCptPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+  };
+
   timeline.push({
-    type: SongPickerPlugin,
-    songs: [
-      { name: "Adele: Hello", file: `${BASE}Adele_Hello_3.mp3` },
+    timeline: [
+      menuTrial,
       {
-        name: "Adele: Someone Like You",
-        file: `${BASE}Adele_SomeoneLikeYou_3.mp3`,
+        timeline: [consentTrial],
+        conditional_function: () => selectedOption === "consent-form",
       },
       {
-        name: "Alicia Keys: Girl on Fire",
-        file: `${BASE}AliciaKeys_GirlOnFire_3.mp3`,
+        timeline: [headphoneCheckTrial],
+        conditional_function: () => selectedOption === "headphone-check",
       },
       {
-        name: "Avril Lavigne: Complicated",
-        file: `${BASE}AvrilLavigne_Complicated_3.mp3`,
+        timeline: [songPickerTrial],
+        conditional_function: () => selectedOption === "song-select",
       },
       {
-        name: "Bill Medley & Jennifer Warnes: I've Had the Time of My Life",
-        file: `${BASE}BillMedley_JenniferWarnes_I'veHadTheTimeOfMyLife_3.mp3`,
+        timeline: [modulationControllerTrial],
+        conditional_function: () => selectedOption === "modulation-controller",
       },
       {
-        name: "Bon Jovi: Livin' on a Prayer",
-        file: `${BASE}BonJovi_LivinOnAPrayer_3.mp3`,
-      },
-      {
-        name: "Boyz II Men: I'll Make Love to You",
-        file: `${BASE}Boyz2Men_I'llMakeLoveToYou_3.mp3`,
-      },
-      {
-        name: "Bruno Mars: Versace on the Floor",
-        file: `${BASE}BrunoMars_VersaceOnTheFloor_3.mp3`,
-      },
-      {
-        name: "Bruno Mars: When I Was Your Man",
-        file: `${BASE}BrunoMars_WhenIWasYourMan_3.mp3`,
-      },
-      {
-        name: "Christina Aguilera: Beautiful",
-        file: `${BASE}ChristinaAguilera_Beautiful_3.mp3`,
-      },
-      {
-        name: "Death Cab for Cutie: I Will Follow You into the Dark",
-        file: `${BASE}DeathCabForCutie_IWillFollowYouIntoTheDark_3.mp3`,
-      },
-      { name: "Ed Sheeran: Perfect", file: `${BASE}EdSheeran_Perfect_3.mp3` },
-      {
-        name: "Ed Sheeran: Thinking Out Loud",
-        file: `${BASE}EdSheeran_ThinkingOutLoud_3.mp3`,
-      },
-      {
-        name: "Eric Carmen: All by Myself",
-        file: `${BASE}EricCarmen_AllByMyself_3.mp3`,
-      },
-      {
-        name: "John Legend: All of Me",
-        file: `${BASE}JohnLegend_AllOfMe_3.mp3`,
-      },
-      {
-        name: "Julia Michaels: Issues",
-        file: `${BASE}JuliaMichaels_Issues_3.mp3`,
-      },
-      {
-        name: "Kelly Clarkson: Because of You",
-        file: `${BASE}KellyClarkson_BecauseOfYou_3.mp3`,
-      },
-      {
-        name: "Kelly Clarkson: Since U Been Gone",
-        file: `${BASE}KellyClarkson_SinceUBeenGone_3.mp3`,
-      },
-      { name: "Kesha: Praying", file: `${BASE}Kesha_Praying_3.mp3` },
-      {
-        name: "Lady Antebellum: Need You Now",
-        file: `${BASE}LadyAntebellum_NeedYouNow_3.mp3`,
-      },
-      { name: "Lady Gaga: Shallow", file: `${BASE}LadyGaga_Shallow_3.mp3` },
-      {
-        name: "Miley Cyrus: Wrecking Ball",
-        file: `${BASE}MileyCyrus_WreckingBall_3.mp3`,
-      },
-      {
-        name: "Pink: Just Give Me a Reason",
-        file: `${BASE}Pink_JustGiveMeAReason_3.mp3`,
-      },
-      {
-        name: "Rufus Wainwright: Hallelujah",
-        file: `${BASE}RufusWainwright_Hallelujah_3.mp3`,
-      },
-      {
-        name: "Sam Smith: Stay with Me",
-        file: `${BASE}SamSmith_StayWithMe_3.mp3`,
-      },
-      {
-        name: "Sara Bareilles: Love Song",
-        file: `${BASE}SaraBareilles_LoveSong_3.mp3`,
-      },
-      {
-        name: "Survivor: Eye of the Tiger",
-        file: `${BASE}Survivor_EyeOfTheTiger_3.mp3`,
-      },
-      {
-        name: "Plain White T's: Hey There Delilah",
-        file: `${BASE}ThePlainWhiteTs_HeyThereDelilah_3.mp3`,
-      },
-      { name: "Toto: Africa", file: `${BASE}Toto_Africa_3.mp3` },
-      {
-        name: "Whitney Houston: I Have Nothing",
-        file: `${BASE}WhitneyHouston_IHaveNothing_3.mp3`,
-      },
-      {
-        name: "Whitney Houston: I Will Always Love You",
-        file: `${BASE}WhitneyHouston_IWillAlwaysLoveYou_3.mp3`,
-      },
-      {
-        name: "Wiz Khalifa: See You Again",
-        file: `${BASE}WizKhalifa_SeeYouAgain_3.mp3`,
+        timeline: [gradCptTrial],
+        conditional_function: () => selectedOption === "gradcpt",
       },
     ],
+    loop_function: () => selectedOption !== "exit",
   });
-  timeline.push({
-    type: ModulationControllerPlugin,
-  });
-  for (let songIndex = 0; songIndex < 4; songIndex++) {
-    timeline.push({
-      type: GradCptPlugin,
-      stimulusFiles: stimulusFileSets[songIndex],
-      songIndex,
-    });
-  }
 
   if (onPavlovia) {
     timeline.push({ type: pavloviaPlugin, command: "finish" });
