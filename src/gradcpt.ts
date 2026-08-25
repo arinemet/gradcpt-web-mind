@@ -59,12 +59,20 @@ function runGradCpt(
   startScreen.addEventListener(
     "click",
     async () => {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
+      const isSafari =
+        /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
+        !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
+      if (!isSafari) {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        }
+      } else {
+        alert(
+          "Fullscreen is not yet supported on Safari as sound playback doesn't work",
+        );
       }
       startScreen.style.display = "none";
       appDiv.style.display = "";
-
       const song = modulationSettings[songIndex];
       if (!song) {
         throw new Error(
