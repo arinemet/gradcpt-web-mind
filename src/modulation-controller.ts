@@ -7,7 +7,13 @@ export interface ModulationSettings extends Song {
   frequency: number;
 }
 
-export let modulationSettings: ModulationSettings[] = [];
+export let modulationSettings: ModulationSettings[] = selectedSongs.map(
+  (song) => ({
+    ...song,
+    depth: 0.25,
+    frequency: 10,
+  }),
+);
 
 export class ModulationControllerPlugin {
   static info = {

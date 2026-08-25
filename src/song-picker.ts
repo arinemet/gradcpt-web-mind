@@ -6,7 +6,25 @@ export interface Song {
   file: string;
 }
 
-export const selectedSongs: Song[] = [];
+const BASE = import.meta.env.BASE_URL;
+export const selectedSongs: Song[] = [
+  {
+    name: "Adele: Hello",
+    file: `${BASE}Adele_Hello_3.mp3`,
+  },
+  {
+    name: "Toto: Africa",
+    file: `${BASE}Toto_Africa_3.mp3`,
+  },
+  {
+    name: "Lady Gaga: Shallow",
+    file: `${BASE}LadyGaga_Shallow_3.mp3`,
+  },
+  {
+    name: "Kesha: Praying",
+    file: `${BASE}Kesha_Praying_3.mp3`,
+  },
+];
 
 export class SongPickerPlugin {
   static info = { name: "song-picker", parameters: {} };
@@ -93,32 +111,34 @@ export class SongPickerPlugin {
       });
     });
 
-    displayElement.querySelector("#continue")!.addEventListener("click", async () => {
-      const indexes = checkboxes
-        .filter((checkbox) => checkbox.checked)
-        .map((checkbox) => Number(checkbox.value));
+    displayElement
+      .querySelector("#continue")!
+      .addEventListener("click", async () => {
+        const indexes = checkboxes
+          .filter((checkbox) => checkbox.checked)
+          .map((checkbox) => Number(checkbox.value));
 
-      if (indexes.length < 4) {
-        error.textContent = "Please choose four songs before continuing.";
-        return;
-      }
+        if (indexes.length < 4) {
+          error.textContent = "Please choose four songs before continuing.";
+          return;
+        }
 
-      const songs = indexes.map((index) => trial.songs[index]);
-      const continueButton =
-        displayElement.querySelector<HTMLButtonElement>("#continue")!;
+        const songs = indexes.map((index) => trial.songs[index]);
+        const continueButton =
+          displayElement.querySelector<HTMLButtonElement>("#continue")!;
 
-      continueButton.disabled = true;
-      error.textContent = "Loading selected songs…";
+        continueButton.disabled = true;
+        error.textContent = "Loading selected songs…";
 
-      try {
-        await Promise.all(songs.map((song) => loadAudio(song.file)));
-        selectedSongs.splice(0, selectedSongs.length, ...songs);
-        stopPreview();
-        this.jsPsych.finishTrial({ selected_songs: selectedSongs });
-      } catch {
-        error.textContent = "The selected songs could not be loaded.";
-        continueButton.disabled = false;
-      }
-    });
+        try {
+          await Promise.all(songs.map((song) => loadAudio(song.file)));
+          selectedSongs.splice(0, selectedSongs.length, ...songs);
+          stopPreview();
+          this.jsPsych.finishTrial({ selected_songs: selectedSongs });
+        } catch {
+          error.textContent = "The selected songs could not be loaded.";
+          continueButton.disabled = false;
+        }
+      });
   }
 }
