@@ -1,8 +1,8 @@
 import type { JsPsych } from "jspsych";
 
-export class JsPsychePlugin {
+export class DropdownPlugin {
   static info = {
-    name: "jspyche-plugin",
+    name: "Dropdown Plugin",
     parameters: {},
   };
 
@@ -15,18 +15,22 @@ export class JsPsychePlugin {
   trial(displayElement: HTMLElement) {
     displayElement.innerHTML = `
     <div class="selection-page">
-          <h2>Choose an option</h2>
 
-          <label for="option-menu">Option</label>
+          <h2 for="option-menu">THAMP Experiment Demo</h2>
+          <p>This is a special redition of the experiment flow. For demo purposes, we let you jump to specific subsections of the study. <br> In the actual flow of the experiment these sections are executed sequentially, no jumps are allowed. </p>
+          <p></p>
           <select id="option-menu">
-            <option value="">Select an option</option>
-            <option value="option-1">Option 1</option>
-            <option value="option-2">Option 2</option>
-            <option value="option-3">Option 3</option>
+            <option value="">--Choose a subsection--</option>
+            <option value="consent-form">Consent Form</option>
+            <option value="headphone-check">Headphone Check</option>
+            <option value="song-select">Song Selection</option>
+            <option value="modulation-controller">Modulation Controller</option>
+            <option value="gradcpt">GradCPT</option>
+            <option value="exit">Exit</option>
           </select>
 
           <button id="continue" class="primary" type="button">
-            Continue
+            Jump
           </button>
 
           <p id="error" role="alert"></p>
@@ -38,10 +42,10 @@ export class JsPsychePlugin {
 
     const error = displayElement.querySelector<HTMLParagraphElement>("#error")!;
 
-    const conitnueButton =
+    const continueButton =
       displayElement.querySelector<HTMLButtonElement>("#continue")!;
 
-    conitnueButton?.addEventListener("click", () => {
+    continueButton.addEventListener("click", () => {
       if (menu.value === "") {
         error.textContent = "Please select a option";
         return;
