@@ -22,12 +22,15 @@ export class HeadphoneCheckPlugin {
 
       if (data.didPass) {
         this.jsPsych.finishTrial({ did_pass: true });
+        displayElement.innerHTML = `
+        <h1>Headphone check succeeded.</h1>
+      `;
         return;
       }
 
       displayElement.innerHTML = `
         <h1>Headphone check failed.</h1>
-        <p>Please use headphones and reload the page to try again.</p>
+        <p>Please use headphones and restart the study to try again.</p>
       `;
     };
 
