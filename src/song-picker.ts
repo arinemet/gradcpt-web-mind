@@ -4,6 +4,7 @@ import { loadAudio } from "./loader.ts";
 export interface Song {
   name: string;
   file: string;
+  frequency: number;
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -11,18 +12,22 @@ export const selectedSongs: Song[] = [
   {
     name: "Adele: Hello",
     file: `${BASE}Adele_Hello_3.mp3`,
+    frequency: 5.266666667,
   },
   {
     name: "Toto: Africa",
     file: `${BASE}Toto_Africa_3.mp3`,
+    frequency: 6.133333333,
   },
   {
     name: "Lady Gaga: Shallow",
     file: `${BASE}LadyGaga_Shallow_3.mp3`,
+    frequency: 6.4,
   },
   {
     name: "Kesha: Praying",
     file: `${BASE}Kesha_Praying_3.mp3`,
+    frequency: 4.933333333,
   },
 ];
 

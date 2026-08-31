@@ -7,6 +7,8 @@ export interface ModulationSettings extends Song {
   frequency: number;
 }
 
+export let modulationFrequencies: number[] = [];
+
 export let modulationSettings: ModulationSettings[] = selectedSongs.map(
   (song) => ({
     ...song,
@@ -39,8 +41,8 @@ export class ModulationControllerPlugin {
 
     displayElement.innerHTML = `
       <div class="audio-setup">
-        <h2>Adjust modulation</h2>
-        <p>Apply modulation settings to each of your four selected songs.</p>
+        <h2>Modulation depth setter</h2>
+        <p>Please set the modulation to the <b>highest possible tolerable value</b>. You will have to stop and start the preview to hear your changes. <br>Once you find the modulation settings that you like, move onto the next song by picking it from the dropdown.<br>Once you are fully done, click continue near the botton of the page.</p>
 
         <div class="audio-control">
           <label for="modulation-song-select">Song</label>
@@ -49,14 +51,9 @@ export class ModulationControllerPlugin {
 
         <div class="audio-control">
           <label for="depth-slider">Depth <output id="depth-value">0.25</output></label>
+          <button id="increase-depth" type="button" aria-label="Increase depth by 0.05">Up</button>
           <input id="depth-slider" type="range" min="0" max="0.5" step="0.05" value="0.25">
-        </div>
-
-        <div class="audio-control">
-          <label for="frequency-slider">
-            Frequency <output id="frequency-value">10</output> Hz
-          </label>
-          <input id="frequency-slider" type="range" min="1" max="100" step="1" value="10">
+          <button id="decrease-depth" type="button">Down</button>
         </div>
 
         <div class="audio-setup-actions">
@@ -72,12 +69,12 @@ export class ModulationControllerPlugin {
     )!;
     const depthSlider =
       displayElement.querySelector<HTMLInputElement>("#depth-slider")!;
-    const frequencySlider =
-      displayElement.querySelector<HTMLInputElement>("#frequency-slider")!;
     const depthValue =
       displayElement.querySelector<HTMLOutputElement>("#depth-value")!;
-    const frequencyValue =
-      displayElement.querySelector<HTMLOutputElement>("#frequency-value")!;
+    const increaseDepthButton =
+      displayElement.querySelector<HTMLButtonElement>("#increase-depth")!;
+    const decreaseDepthButton =
+      displayElement.querySelector<HTMLButtonElement>("#decrease-depth")!;
     const previewButton =
       displayElement.querySelector<HTMLButtonElement>("#preview-song")!;
     const confirmButton = displayElement.querySelector<HTMLButtonElement>(
@@ -101,9 +98,19 @@ export class ModulationControllerPlugin {
     const showSettings = () => {
       const current = currentSettings();
       depthSlider.value = String(current.depth);
-      frequencySlider.value = String(current.frequency);
-      depthValue.value = String(current.depth);
-      frequencyValue.value = String(current.frequency);
+      depthValue.value = current.depth.toFixed(2);
+      increaseDepthButton.disabled = current.depth >= Number(depthSlider.max);
+      decreaseDepthButton.disabled = current.depth <= Number(depthSlider.min);
+    };
+    const changeDepth = (amount: number) => {
+      const current = currentSettings();
+      const minimum = Number(depthSlider.min);
+      const maximum = Number(depthSlider.max);
+      current.depth = Math.min(
+        maximum,
+        Math.max(minimum, Number((current.depth + amount).toFixed(2))),
+      );
+      showSettings();
     };
 
     songSelect.addEventListener("change", () => {
@@ -112,12 +119,10 @@ export class ModulationControllerPlugin {
     });
     depthSlider.addEventListener("input", () => {
       currentSettings().depth = Number(depthSlider.value);
-      depthValue.value = depthSlider.value;
+      showSettings();
     });
-    frequencySlider.addEventListener("input", () => {
-      currentSettings().frequency = Number(frequencySlider.value);
-      frequencyValue.value = frequencySlider.value;
-    });
+    increaseDepthButton.addEventListener("click", () => changeDepth(0.05));
+    decreaseDepthButton.addEventListener("click", () => changeDepth(-0.05));
 
     previewButton.addEventListener("click", async () => {
       if (playing) {

@@ -29,13 +29,11 @@ function runGradCpt(
     </div>
     <div id="app" style="display:none">
       <canvas width="256" height="256"></canvas>
-      <div id="rtime"></div>
     </div>
   `;
 
   const canvas = displayElement.querySelector<HTMLCanvasElement>("canvas")!;
   const ctx = canvas.getContext("2d")!;
-  const rtimeDiv = displayElement.querySelector<HTMLDivElement>("#rtime")!;
   const offCanvas = document.createElement("canvas");
   let offCtx: CanvasRenderingContext2D;
 
@@ -183,11 +181,9 @@ function runGradCpt(
         if (e.code === "Space" && !e.repeat && !clicked) {
           rt = performance.now() - lastSwitch;
           if (city) {
-            rtimeDiv.textContent = `CORRECT! reaction: ${rt.toFixed(1)} ms Difficulty ${difficulty.toFixed(1)}`;
             correctStreak++;
             correct();
           } else {
-            rtimeDiv.textContent = `INCORRECT! reaction: ${rt.toFixed(1)} ms Difficulty ${difficulty.toFixed(1)}`;
             incorrect();
           }
           clicked = true;
@@ -217,11 +213,9 @@ function runGradCpt(
 
         if (now - lastSwitch >= 800) {
           if (!clicked && city) {
-            rtimeDiv.textContent = `INCORRECT! Did not click.`;
             incorrect();
           } else if (!clicked && !city) {
             correctStreak++;
-            rtimeDiv.textContent = `CORRECT! Did not click.`;
             correct();
           }
           saveData(now);
@@ -253,7 +247,7 @@ function runGradCpt(
 
 export class GradCptPlugin {
   static info = {
-    name: "gradcpt",
+    name: "mod-gradcpt",
     parameters: {
       stimulusFiles: { type: ParameterType.OBJECT, default: undefined },
       songIndex: { type: ParameterType.INT, default: undefined },
