@@ -6,7 +6,6 @@ import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
 import { HeadphoneCheckPlugin } from "./headphone-check.ts";
-import { DropdownPlugin } from "./dropdown.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -78,16 +77,7 @@ async function main() {
     timeline.push({ type: pavloviaPlugin, command: "init" });
   }
 
-  let selectedOption = "";
-
-  const menuTrial = {
-    type: DropdownPlugin,
-    on_finish: (data: { selected_option: string }) => {
-      selectedOption = data.selected_option;
-    },
-  };
-
-  const consentTrial = {
+  timeline.push({
     type: SurveyMultiChoicePlugin,
     preamble: `
     <div class="consent-box">
@@ -132,11 +122,11 @@ If you want a copy of this consent for your records, you can print it from the s
         jsPsych.endExperiment("You chose to not participate");
       }
     },
-  };
+  });
 
-  const headphoneCheckTrial = { type: HeadphoneCheckPlugin };
+  timeline.push({ type: HeadphoneCheckPlugin });
 
-  const songPickerTrial = {
+  timeline.push({
     type: SongPickerPlugin,
     songs: [
       {
@@ -300,41 +290,14 @@ If you want a copy of this consent for your records, you can print it from the s
         frequency: 5.333333333,
       },
     ],
-  };
+  });
 
-  const modulationControllerTrial = { type: ModulationControllerPlugin };
+  timeline.push({ type: ModulationControllerPlugin });
 
-  const gradCptTrial = {
+  timeline.push({
     type: GradCptPlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
-  };
-
-  timeline.push({
-    timeline: [
-      menuTrial,
-      {
-        timeline: [consentTrial],
-        conditional_function: () => selectedOption === "consent-form",
-      },
-      {
-        timeline: [headphoneCheckTrial],
-        conditional_function: () => selectedOption === "headphone-check",
-      },
-      {
-        timeline: [songPickerTrial],
-        conditional_function: () => selectedOption === "song-select",
-      },
-      {
-        timeline: [modulationControllerTrial],
-        conditional_function: () => selectedOption === "modulation-controller",
-      },
-      {
-        timeline: [gradCptTrial],
-        conditional_function: () => selectedOption === "gradcpt",
-      },
-    ],
-    loop_function: () => selectedOption !== "exit",
   });
 
   if (onPavlovia) {
