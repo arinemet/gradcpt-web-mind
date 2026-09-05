@@ -6,6 +6,7 @@ import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
 import { HeadphoneCheckPlugin } from "./headphone-check.ts";
+import { BackgroundQuestionsPlugin } from "./background-questions.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -76,6 +77,10 @@ async function main() {
     }
     timeline.push({ type: pavloviaPlugin, command: "init" });
   }
+
+  timeline.push({
+    type: BackgroundQuestionsPlugin,
+  });
 
   timeline.push({
     type: SurveyMultiChoicePlugin,
