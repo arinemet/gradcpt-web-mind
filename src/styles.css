@@ -1,0 +1,309 @@
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100svh;
+}
+
+#start-screen,
+.message {
+  max-width: 36rem;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+#app {
+  text-align: center;
+}
+
+#rtime {
+  min-height: 1.5rem;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+.consent-box {
+  max-width: 800px;
+  max-height: 2000px;
+  overflow-y: auto;
+  margin: 24px auto;
+  padding: 24px;
+  border: 0px solid #aaa;
+  background: #fff;
+  color: #000;
+  text-align: left;
+  white-space: pre-line;
+}
+
+body:has(.consent-box) {
+  background: #fff;
+  color: #000;  
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+body:has(.consent-box) .jspsych-content-wrapper {
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+body:has(.consent-box) .jspsych-content {
+  margin: 0 auto;
+}
+
+#song-choices {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+body:has(#song-choices) {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+body:has(#song-choices) .jspsych-content-wrapper {
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+body:has(#song-choices) .jspsych-content {
+  margin: 0 auto;
+}
+
+body:has(#song-choices) .audio-setup {
+  padding: 2rem 1rem;
+}
+
+#song-choices th,
+#song-choices td {
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid #aaa;
+}
+
+#song-choices th:first-child,
+#song-choices td:first-child,
+#song-choices th:last-child,
+#song-choices td:last-child {
+  width: 5rem;
+  text-align: center;
+}
+
+#hc-container {
+  max-width: 800px;
+  margin: 24px auto;
+  padding: 24px;
+  background: #000;
+  color: #fff;
+  text-align: left;
+}
+
+body:has(#hc-container) {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+body:has(#hc-container) .jspsych-content-wrapper {
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+body:has(#hc-container) .jspsych-content {
+  margin: 0 auto;
+}
+
+.hc-instruction,
+.hc-calibration-instruction {
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+#hc-calibration-div {
+  margin: 1rem 0;
+}
+
+.hc-trial-div {
+  display: block;
+  border: 0;
+  padding: 0 0 1.5rem;
+  margin: 0 0 1.5rem;
+  border-bottom: 1px solid #aaa;
+}
+
+.hc-trial-div:last-of-type {
+  border-bottom: none;
+}
+
+#hc-container button {
+  font: inherit;
+  color: #fff;
+  background: #000;
+  border: 1px solid #aaa;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
+#hc-container button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+div[id^="hc-play-button-border-"] {
+  margin-bottom: 0.75rem;
+}
+
+.hc-buttonset-vertical {
+  margin-top: 0.5rem;
+}
+
+.hc-buttonset-vertical label {
+  display: block;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+#hc-calibration-play-button,
+#hc-calibration-continue-button,
+#hc-container > button {
+  margin-top: 0.5rem;
+}
+
+body:has(#bq-form),
+body:has(#song-familiarity-form) {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+body:has(#bq-form) .jspsych-content-wrapper,
+body:has(#song-familiarity-form) .jspsych-content-wrapper {
+  align-items: flex-start;
+  margin: 0 auto;
+}
+
+body:has(#bq-form) .jspsych-content,
+body:has(#song-familiarity-form) .jspsych-content {
+  margin: 0 auto;
+}
+
+#bq-form,
+#song-familiarity-form {
+  max-width: 800px;
+  margin: 24px auto;
+  padding: 24px;
+  background: #000;
+  color: #fff;
+  text-align: left;
+}
+
+#bq-form h2,
+#song-familiarity-form h2 {
+  text-align: left;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 0.75rem;
+  margin: 0 0 1.5rem;
+}
+
+#bq-form p {
+  line-height: 1.5;
+}
+
+.bq-question {
+  padding: 0 0 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #aaa;
+  text-align: left;
+}
+
+.bq-question:last-of-type {
+  border-bottom: none;
+}
+
+.bq-question p,
+.bq-question label:first-child {
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.bq-question input[type="text"],
+.bq-question select,
+.bq-question textarea {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  color: #fff;
+  background: #000;
+  border: 1px solid #aaa;
+}
+
+.bq-question textarea {
+  max-width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.bq-question label {
+  font-weight: normal;
+}
+
+.bq-question label:not(:first-child) {
+  display: block;
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+
+.bq-text-entry {
+  display: block;
+  margin: 0.35rem 0 0.75rem 1.5rem;
+  width: calc(100% - 1.5rem);
+}
+
+.bq-text-entry[hidden] {
+  display: none;
+}
+
+.bq-question table {
+  border-collapse: collapse;
+}
+
+.bq-question table td {
+  padding: 0.35rem 0.5rem;
+}
+
+.bq-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.bq-slider-row label {
+  flex: 0 0 auto;
+  min-width: 10rem;
+  font-weight: normal;
+}
+
+.bq-slider-row input[type="range"] {
+  flex: 1 1 auto;
+}
+
+#bq-form button[type="submit"],
+#song-familiarity-form button[type="submit"] {
+  margin-top: 0.5rem;
+}
