@@ -20,6 +20,7 @@ function runGradCpt(
   displayElement: HTMLElement,
   stimulusFiles: string[],
   songIndex: number,
+  fixedDifficulty: number,
 ) {
   sessionCompletedMod = false;
   displayElement.innerHTML = `
@@ -100,9 +101,9 @@ function runGradCpt(
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
       let clicked = false;
       let rt: number | null = null;
-      let difficulty = 0;
+      const difficulty = fixedDifficulty;
       let correctStreak = 0;
-      let difficultyBefore = difficulty;
+      const difficultyBefore = difficulty;
       let ended = false;
       let frameId = 0;
       let crossFadeFrameId = 0;
@@ -112,14 +113,10 @@ function runGradCpt(
 
       function incorrect() {
         correctStreak = 0;
-        if (difficulty > 0) {
-          difficulty--;
-        }
       }
 
       function correct() {
-        if (correctStreak >= 3 && difficulty < difficulties.length - 1) {
-          difficulty++;
+        if (correctStreak >= 3) {
           correctStreak = 0;
         }
       }
@@ -234,7 +231,6 @@ function runGradCpt(
           crossFade(now, difficulty);
           clicked = false;
           rt = null;
-          difficultyBefore = difficulty;
         }
         frameId = requestAnimationFrame(frame);
       }
@@ -255,9 +251,11 @@ export class GradCptModPlugin {
   };
 
   private jsPsych: JsPsych;
+  private difficulty: number;
 
-  constructor(jsPsych: JsPsych) {
+  constructor(jsPsych: JsPsych, difficulty: number) {
     this.jsPsych = jsPsych;
+    this.difficulty = difficulty;
   }
 
   trial(
@@ -269,6 +267,7 @@ export class GradCptModPlugin {
       displayElement,
       trial.stimulusFiles,
       trial.songIndex,
+      this.difficulty,
     );
   }
 }
