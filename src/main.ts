@@ -1,7 +1,7 @@
 import * as jsPsychModule from "jspsych";
 import "jspsych/css/jspsych.css";
 import "./styles.css";
-import { GradCptPlugin, sessionCompleted } from "./gradcpt.ts";
+import { GradCptPlugin, sessionCompleted } from "./gradcpt-mod.ts";
 import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";

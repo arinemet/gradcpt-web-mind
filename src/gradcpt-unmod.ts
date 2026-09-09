@@ -245,7 +245,7 @@ function runGradCpt(
   );
 }
 
-export class GradCptPlugin {
+export class GradCptUnmodPlugin {
   static info = {
     name: "mod-gradcpt",
     parameters: {
