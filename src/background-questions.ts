@@ -514,7 +514,16 @@ export class BackgroundQuestionsPlugin {
       event.preventDefault();
 
       const formData = new FormData(form);
+      const pageResponses: Record<string, unknown> = {};
       for (const [key, value] of formData.entries()) {
+        if (key in pageResponses) {
+          const existing = pageResponses[key];
+          pageResponses[key] = Array.isArray(existing)
+            ? [...existing, value]
+            : [existing, value];
+        } else {
+          pageResponses[key] = value;
+        }
         if (key in this.responses) {
           const existing = this.responses[key];
           this.responses[key] = Array.isArray(existing)
@@ -525,8 +534,15 @@ export class BackgroundQuestionsPlugin {
         }
       }
 
+      this.jsPsych.data.write({
+        trial_type: "background-questions",
+        page_index: this.pageIndex,
+        ...pageResponses,
+      });
+
       if (isLastPage) {
-        this.jsPsych.finishTrial(this.responses);
+        this.jsPsych.finishTrial();
+        setTimeout(() => console.log(this.jsPsych.data.get().csv()), 0);
         return;
       }
 
