@@ -13,7 +13,7 @@ const difficulties: [number, number][] = [
   [0.5, 0.5],
 ];
 
-export let sessionCompleted = false;
+export let sessionCompletedMod = false;
 
 function runGradCpt(
   jsPsych: JsPsych,
@@ -21,7 +21,7 @@ function runGradCpt(
   stimulusFiles: string[],
   songIndex: number,
 ) {
-  sessionCompleted = false;
+  sessionCompletedMod = false;
   displayElement.innerHTML = `
     <div id="start-screen">
       <h1>This study requires fullscreen.</h1>
@@ -153,7 +153,7 @@ function runGradCpt(
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         document.removeEventListener("fullscreenchange", onFullscreenChange);
-        sessionCompleted = reason === null;
+        sessionCompletedMod = reason === null;
         jsPsych.finishTrial();
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
