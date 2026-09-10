@@ -14,6 +14,7 @@ const difficulties: [number, number][] = [
 ];
 
 export let sessionCompletedCalibration = false;
+export let calibratedDifficulty: number | null = null;
 
 function runGradCpt(
   jsPsych: JsPsych,
@@ -22,6 +23,7 @@ function runGradCpt(
   songIndex: number,
 ) {
   sessionCompletedCalibration = false;
+  calibratedDifficulty = null;
   displayElement.innerHTML = `
     <div id="start-screen">
       <h1>This study requires fullscreen.</h1>
@@ -154,7 +156,8 @@ function runGradCpt(
         document.removeEventListener("visibilitychange", onVisibilityChange);
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedCalibration = reason === null;
-        jsPsych.finishTrial();
+        calibratedDifficulty = sessionCompletedCalibration ? difficulty : null;
+        jsPsych.finishTrial({ calibrated_difficulty: calibratedDifficulty });
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
 
