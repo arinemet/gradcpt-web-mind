@@ -108,6 +108,15 @@ function runGradCpt(
       let ended = false;
       let frameId = 0;
       let crossFadeFrameId = 0;
+      let turnarounds = 0;
+      let lastDirection = 0;
+
+      function recordDifficultyChange(delta: number) {
+        if (lastDirection !== 0 && delta !== lastDirection) {
+          turnarounds++;
+        }
+        lastDirection = delta;
+      }
 
       ctx.drawImage(currentImage, 0, 0);
       songPlayer.start();
@@ -116,6 +125,7 @@ function runGradCpt(
         correctStreak = 0;
         if (difficulty > 0) {
           difficulty--;
+          recordDifficultyChange(-1);
         }
       }
 
@@ -123,6 +133,7 @@ function runGradCpt(
         if (correctStreak >= 3 && difficulty < difficulties.length - 1) {
           difficulty++;
           correctStreak = 0;
+          recordDifficultyChange(1);
         }
       }
 
@@ -157,7 +168,10 @@ function runGradCpt(
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedCalibration = reason === null;
         calibratedDifficulty = sessionCompletedCalibration ? difficulty : null;
-        jsPsych.finishTrial({ calibrated_difficulty: calibratedDifficulty });
+        jsPsych.finishTrial({
+          calibrated_difficulty: calibratedDifficulty,
+          turnarounds,
+        });
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
 
@@ -171,6 +185,7 @@ function runGradCpt(
           correct: clicked === city,
           difficulty_before: difficultyBefore,
           difficulty_after: difficulty,
+          turnarounds,
           duration: now - lastSwitch,
           gradcpt_run: songIndex + 1,
           song_name: song.name,
@@ -222,7 +237,7 @@ function runGradCpt(
             correct();
           }
           saveData(now);
-          if (stimulusIndex === stimulusFiles.length - 1) {
+          if (turnarounds >= 16 || stimulusIndex === stimulusFiles.length - 1) {
             finish(null);
             return;
           }
