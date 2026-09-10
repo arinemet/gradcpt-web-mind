@@ -318,6 +318,13 @@ If you want a copy of this consent for your records, you can print it from the s
     difficulty: () => calibratedDifficulty,
   });
 
+  timeline.push({
+    type: GradCptModPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+    difficulty: () => calibratedDifficulty,
+  });
+
   if (onPavlovia) {
     timeline.push({ type: pavloviaPlugin, command: "finish" });
   }

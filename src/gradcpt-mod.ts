@@ -247,27 +247,26 @@ export class GradCptModPlugin {
     parameters: {
       stimulusFiles: { type: ParameterType.OBJECT, default: undefined },
       songIndex: { type: ParameterType.INT, default: undefined },
+      difficulty: { type: ParameterType.INT, default: undefined },
     },
   };
 
   private jsPsych: JsPsych;
-  private difficulty: number;
 
-  constructor(jsPsych: JsPsych, difficulty: number) {
+  constructor(jsPsych: JsPsych) {
     this.jsPsych = jsPsych;
-    this.difficulty = difficulty;
   }
 
   trial(
     displayElement: HTMLElement,
-    trial: { stimulusFiles: string[]; songIndex: number },
+    trial: { stimulusFiles: string[]; songIndex: number; difficulty: number },
   ) {
     runGradCpt(
       this.jsPsych,
       displayElement,
       trial.stimulusFiles,
       trial.songIndex,
-      this.difficulty,
+      trial.difficulty,
     );
   }
 }
