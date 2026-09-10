@@ -231,7 +231,21 @@ const PAGES: string[] = [
   `
     <h2>BMRQ</h2>
     <p>
-      For the next survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says. Please respond to all the items; do not leave any blank. Choose only one response to each statement. Please be as accurate and honest as you can be. Respond to each item as if it were the only item. That is, do not worry about being consistent in your responses. Choose from completely disagree (left) to completely agree (right) one of the five options: 1 = Completely disagree; 2 = Disagree; 3 = Neither agree nor disagree; 4 = Agree; 5 = Completely agree.
+      For the next survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says.
+    </p>
+    <p>
+      Please respond to all the items; do not leave any blank. Choose only one response to each statement.
+      Please be as accurate and honest as you can be. Respond to each item as if it were the only item. That is, do not worry about being consistent in your responses.
+    </p>
+    <p>
+      Choose from completely disagree (left) to completely agree (right) one of the five options:
+    </p>
+    <p>
+      1 = Completely disagree;<br>
+      2 = Disagree;<br>
+      3 = Neither agree nor disagree;<br>
+      4 = Agree;<br>
+      5 = Completely agree.
     </p>
     ${bipolarLikert("Q2.BMRQ", "1. When I share music with someone I feel a special connection with that person.", 5)}
     ${bipolarLikert("Q3.BMRQ", "2. In my free time I hardly listen to music.", 5)}
@@ -262,7 +276,23 @@ const PAGES: string[] = [
   `
     <h2>Gold MSI</h2>
     <p>
-      For this survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says. Please respond to all the items; do not leave any blank. Choose only one response to each statement. Please be as accurate and honest as you can be. Respond to each item as if it were the only item. That is, do not worry about being consistent in your responses. Choose from completely disagree (left) to completely agree (right) one of the seven options: 1 = Completely disagree; 2 = Strongly disagree; 3 = Disagree; 4 = Neither agree nor disagree; 5 = Agree; 6 = Strongly agree. 7 = Completely agree.
+      For this survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says.
+    </p>
+    <p>
+      Please respond to all the items; do not leave any blank. Choose only one response to each statement.
+      Please be as accurate and honest as you can be. Respond to each item as if it were the only item. That is, do not worry about being consistent in your responses.
+    </p>
+    <p>
+      Choose from completely disagree (left) to completely agree (right) one of the seven options:
+    </p>
+    <p>
+      1 = Completely disagree;<br>
+      2 = Strongly disagree;<br>
+      3 = Disagree;<br>
+      4 = Neither agree nor disagree;<br>
+      5 = Agree;<br>
+      6 = Strongly agree;<br>
+      7 = Completely agree.
     </p>
     ${bipolarLikert("Q2.GMSI", "1. I spend a lot of my free time doing music-related activities.", 7)}
     ${bipolarLikert("Q3.GMSI", "2. I sometimes choose music that can trigger shivers down my spine.", 7)}
