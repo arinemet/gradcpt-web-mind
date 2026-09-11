@@ -13,15 +13,16 @@ const difficulties: [number, number][] = [
   [0.5, 0.5],
 ];
 
-export let sessionCompleted = false;
+export let sessionCompletedUnmod = false;
 
 function runGradCpt(
   jsPsych: JsPsych,
   displayElement: HTMLElement,
   stimulusFiles: string[],
   songIndex: number,
+  fixedDifficulty: number,
 ) {
-  sessionCompleted = false;
+  sessionCompletedUnmod = false;
   displayElement.innerHTML = `
     <div id="start-screen">
       <h1>This study requires fullscreen.</h1>
@@ -85,7 +86,7 @@ function runGradCpt(
       const songPlayer = await amplitudeModulation(
         song.file,
         song.frequency,
-        song.depth,
+        0,
       );
 
       offCanvas.width = canvas.width;
@@ -100,9 +101,9 @@ function runGradCpt(
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
       let clicked = false;
       let rt: number | null = null;
-      let difficulty = 0;
+      const difficulty = fixedDifficulty;
       let correctStreak = 0;
-      let difficultyBefore = difficulty;
+      const difficultyBefore = difficulty;
       let ended = false;
       let frameId = 0;
       let crossFadeFrameId = 0;
@@ -112,14 +113,10 @@ function runGradCpt(
 
       function incorrect() {
         correctStreak = 0;
-        if (difficulty > 0) {
-          difficulty--;
-        }
       }
 
       function correct() {
-        if (correctStreak >= 3 && difficulty < difficulties.length - 1) {
-          difficulty++;
+        if (correctStreak >= 3) {
           correctStreak = 0;
         }
       }
@@ -153,7 +150,7 @@ function runGradCpt(
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         document.removeEventListener("fullscreenchange", onFullscreenChange);
-        sessionCompleted = reason === null;
+        sessionCompletedUnmod = reason === null;
         jsPsych.finishTrial();
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
@@ -234,7 +231,6 @@ function runGradCpt(
           crossFade(now, difficulty);
           clicked = false;
           rt = null;
-          difficultyBefore = difficulty;
         }
         frameId = requestAnimationFrame(frame);
       }
@@ -245,12 +241,13 @@ function runGradCpt(
   );
 }
 
-export class GradCptPlugin {
+export class GradCptUnmodPlugin {
   static info = {
     name: "mod-gradcpt",
     parameters: {
       stimulusFiles: { type: ParameterType.OBJECT, default: undefined },
       songIndex: { type: ParameterType.INT, default: undefined },
+      difficulty: { type: ParameterType.INT, default: undefined },
     },
   };
 
@@ -262,13 +259,14 @@ export class GradCptPlugin {
 
   trial(
     displayElement: HTMLElement,
-    trial: { stimulusFiles: string[]; songIndex: number },
+    trial: { stimulusFiles: string[]; songIndex: number; difficulty: number },
   ) {
     runGradCpt(
       this.jsPsych,
       displayElement,
       trial.stimulusFiles,
       trial.songIndex,
+      trial.difficulty,
     );
   }
 }

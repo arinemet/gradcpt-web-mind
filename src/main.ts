@@ -1,7 +1,17 @@
 import * as jsPsychModule from "jspsych";
 import "jspsych/css/jspsych.css";
 import "./styles.css";
-import { GradCptPlugin, sessionCompleted } from "./gradcpt.ts";
+import { GradCptModPlugin, sessionCompletedMod } from "./gradcpt-mod.ts";
+import {
+  GradCptCalibrationPlugin,
+  sessionCompletedCalibration,
+  calibratedDifficulty,
+} from "./gradcpt-calibration.ts";
+import { GradCptUnmodPlugin, sessionCompletedUnmod } from "./gradcpt-unmod.ts";
+import {
+  GradCptPracticePlugin,
+  sessionCompletedPractice,
+} from "./gradcpt-practice.ts";
 import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
@@ -290,9 +300,29 @@ If you want a copy of this consent for your records, you can print it from the s
   timeline.push({ type: ModulationControllerPlugin });
 
   timeline.push({
-    type: GradCptPlugin,
+    type: GradCptPracticePlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
+  });
+
+  timeline.push({
+    type: GradCptCalibrationPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+  });
+
+  timeline.push({
+    type: GradCptUnmodPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+    difficulty: () => calibratedDifficulty,
+  });
+
+  timeline.push({
+    type: GradCptModPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+    difficulty: () => calibratedDifficulty,
   });
 
   if (onPavlovia) {
