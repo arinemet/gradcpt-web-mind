@@ -30,11 +30,13 @@ function runGradCpt(
     <div id="app" style="display:none">
       <canvas width="256" height="256"></canvas>
     </div>
+    <div id="rtime"></div>
   `;
 
   const canvas = displayElement.querySelector<HTMLCanvasElement>("canvas")!;
   const ctx = canvas.getContext("2d")!;
   const offCanvas = document.createElement("canvas");
+  const rtimeDiv = document.querySelector("#rtime")!;
   let offCtx: CanvasRenderingContext2D;
 
   function imageDataFor(img: HTMLImageElement): ImageData {
@@ -115,6 +117,7 @@ function runGradCpt(
         if (difficulty > 0) {
           difficulty--;
         }
+        rtimeDiv.textContent = `INCORRECT! Did not click.`;
       }
 
       function correct() {
@@ -122,6 +125,7 @@ function runGradCpt(
           difficulty++;
           correctStreak = 0;
         }
+        rtimeDiv.textContent = `CORRECT!`;
       }
 
       function crossFade(currentTime: number, difficultyIndex: number) {
