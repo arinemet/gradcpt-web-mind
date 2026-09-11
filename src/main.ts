@@ -71,6 +71,11 @@ async function main() {
   const jsPsych = initJsPsych({
     on_finish: () => {
       if (onPavlovia) return;
+      const sessionCompleted =
+        sessionCompletedPractice &&
+        sessionCompletedCalibration &&
+        sessionCompletedMod &&
+        sessionCompletedUnmod;
       jsPsych.getDisplayElement().innerHTML = sessionCompleted
         ? `<h1>Session complete.</h1><p>Thank you for participating.</p>`
         : `<h1>Session incomplete, exited.</h1><p>You exited from fullscreen. Thank you for participating.</p>`;
