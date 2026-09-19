@@ -110,10 +110,16 @@ function runGradCpt(
       let crossFadeFrameId = 0;
       let turnarounds = 0;
       let lastDirection = 0;
+      let lastSixTurnarounds: number[] = [];
 
       function recordDifficultyChange(delta: number) {
         if (lastDirection !== 0 && delta !== lastDirection) {
           turnarounds++;
+          lastSixTurnarounds.unshift(difficulty);
+          if (lastSixTurnarounds.length > 6) {
+            // oldest turnaround will be the -1st element, so we pop last element
+            lastSixTurnarounds.pop();
+          }
         }
         lastDirection = delta;
       }
@@ -156,6 +162,15 @@ function runGradCpt(
         }
       }
 
+      function calculateAverage(a: number[]) {
+        let sum: number = 0;
+        for (const e of a) {
+          sum += e;
+        }
+
+        return sum / a.length;
+      }
+
       function finish(reason: string | null) {
         if (ended) return;
         ended = true;
@@ -167,7 +182,9 @@ function runGradCpt(
         document.removeEventListener("visibilitychange", onVisibilityChange);
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedCalibration = reason === null;
-        calibratedDifficulty = sessionCompletedCalibration ? difficulty : null;
+        calibratedDifficulty = sessionCompletedCalibration
+          ? Math.round(calculateAverage(lastSixTurnarounds))
+          : null;
         jsPsych.finishTrial({
           calibrated_difficulty: calibratedDifficulty,
           turnarounds,

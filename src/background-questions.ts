@@ -144,6 +144,39 @@ function checkboxQuestion(
   `;
 }
 
+function groupedRadioQuestion(
+  tag: string,
+  prompt: string,
+  groups: { label: string; choices: string[] }[],
+): string {
+  const groupBlocks = groups
+    .map(({ label, choices }) => {
+      const options = choices
+        .map(
+          (choice) => `
+        <label style="display: block;">
+          <input type="radio" name="${tag}.${label}" value="${choice}" required />
+          ${choice}
+        </label>`,
+        )
+        .join("");
+
+      return `
+      <div class="bq-question-group">
+        <p><strong>${label}</strong></p>
+        ${options}
+      </div>`;
+    })
+    .join("");
+
+  return `
+    <div class="bq-question">
+      <p>${prompt}</p>
+      ${groupBlocks}
+    </div>
+  `;
+}
+
 function textQuestion(tag: string, prompt: string, required = true): string {
   return `
     <div class="bq-question">
@@ -435,23 +468,14 @@ const PAGES: string[] = [
       7,
     )}
     ${checkboxQuestion("Q4.BMLH", "Specify which style(s) of music you listen to when performing these MORE cognitive activities:", MUSIC_STYLE_CHOICES)}
-    ${checkboxQuestion(
+    ${groupedRadioQuestion(
       "Q5.BMLH",
       "When you listen to music while performing your MORE cognitive activities, do you prefer the music to be:",
       [
-        "Relaxing",
-        "Stimulating",
-        "No Preference",
-        "Without Lyrics",
-        "With Lyrics",
-        "No Preference",
-        "Familiar",
-        "Unfamiliar",
-        "No Preference",
-        "Chosen by you",
-        "The choice of music does not matter",
-        "No preference",
-        "Does not apply",
+        { label: "Feeling", choices: ["Does not apply", "Relaxing", "Stimulating", "No Preference"] },
+        { label: "Lyrics", choices: ["Does not apply", "Without Lyrics", "With Lyrics", "No Preference"] },
+        { label: "Familiarity", choices: ["Does not apply", "Familiar", "Unfamiliar", "No Preference"] },
+        { label: "Choice", choices: ["Does not apply", "Chosen by you", "The choice of music does not matter", "No preference"] },
       ],
     )}
     ${sliderQuestion(
@@ -467,23 +491,14 @@ const PAGES: string[] = [
       7,
     )}
     ${checkboxQuestion("Q7.BMLH", "Specify which style(s) of music you listen to when performing these LESS cognitive activities:", MUSIC_STYLE_CHOICES)}
-    ${checkboxQuestion(
+    ${groupedRadioQuestion(
       "Q8.BMLH",
       "When you listen to music while performing your LESS cognitive activities, do you prefer the music to be:",
       [
-        "Relaxing",
-        "Stimulating",
-        "No Preference",
-        "Without Lyrics",
-        "With Lyrics",
-        "No Preference",
-        "Familiar",
-        "Unfamiliar",
-        "No Preference",
-        "Chosen by you",
-        "The choice of music does not matter",
-        "No preference",
-        "Does not apply",
+        { label: "Feeling", choices: ["Does not apply", "Relaxing", "Stimulating", "No Preference"] },
+        { label: "Lyrics", choices: ["Does not apply", "Without Lyrics", "With Lyrics", "No Preference"] },
+        { label: "Familiarity", choices: ["Does not apply", "Familiar", "Unfamiliar", "No Preference"] },
+        { label: "Choice", choices: ["Does not apply", "Chosen by you", "The choice of music does not matter", "No preference"] },
       ],
     )}
   `,
