@@ -27,7 +27,7 @@ body {
   font-size: 18px;
 }
 
-.gradcpt-instructions {
+[class$="-instructions"] {
   max-width: 800px;
   max-height: 2000px;
   overflow-y: auto;
@@ -92,18 +92,18 @@ body:has(#song-choices) .jspsych-content {
   margin: 0 auto;
 }
 
-body:has(.gradcpt-instructions) {
+body:has([class$="-instructions"]) {
   align-items: flex-start;
   justify-content: flex-start;
   overflow-y: auto;
 }
 
-body:has(.gradcpt-instructions) .jspsych-content-wrapper {
+body:has([class$="-instructions"]) .jspsych-content-wrapper {
   align-items: flex-start;
   margin: 0 auto;
 }
 
-body:has(.gradcpt-instructions) .jspsych-content {
+body:has([class$="-instructions"]) .jspsych-content {
   margin: 0 auto;
 }
 
