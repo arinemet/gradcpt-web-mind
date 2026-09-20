@@ -24,7 +24,7 @@ function runGradCpt(
   sessionCompletedPractice = false;
   displayElement.innerHTML = `
     <div id="start-screen">
-      <h1>This study requires fullscreen.</h1>
+      <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward. Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</p>
       <p>Click to enter fullscreen and start.</p>
     </div>
     <div id="app" style="display:none">
