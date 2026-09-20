@@ -96,9 +96,6 @@ async function main() {
     timeline.push({ type: pavloviaPlugin, command: "init" });
   }
 
-  timeline.push({ type: GeneralInstructionsPlugin });
-  timeline.push({ type: GradCptInstructionsPlugin });
-
   timeline.push({
     type: SurveyMultiChoicePlugin,
     preamble: `
@@ -140,6 +137,8 @@ If you want a copy of this consent for your records, you can print it from the s
   timeline.push({
     type: BackgroundQuestionsPlugin,
   });
+
+  timeline.push({ type: GeneralInstructionsPlugin });
 
   timeline.push({
     type: SongPickerPlugin,
@@ -308,6 +307,8 @@ If you want a copy of this consent for your records, you can print it from the s
   });
 
   timeline.push({ type: ModulationControllerPlugin });
+
+  timeline.push({ type: GradCptInstructionsPlugin });
 
   timeline.push({
     type: GradCptPracticePlugin,
