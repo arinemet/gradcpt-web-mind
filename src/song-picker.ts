@@ -55,7 +55,9 @@ export class SongPickerPlugin {
 
     displayElement.innerHTML = `
       <div class="audio-setup">
-        <h2>Choose four songs that you would like to use</h2>
+        <p>
+        In this section, we will ask you to select 4 songs that you will listen to in the background as you perform the attention task. You will see a playlist of 32 songs and you will be able to play clips from each song to aid your selections. <em>Please check the top 4 songs that you think will be most beneficial as background music for helping you work/focus.</em>
+        </p>
         <table id="song-choices">
           <thead>
             <tr><th>Select</th><th>Song name</th><th>Preview</th></tr>

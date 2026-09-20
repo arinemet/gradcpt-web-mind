@@ -99,22 +99,22 @@ async function main() {
   timeline.push({
     type: SurveyMultiChoicePlugin,
     preamble: `
-    <div class="consent-box">
-    <h2>Consent</h2>
-    Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information. 
-Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating. 
-Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing. 
-Why is this research study being done? This study is part of the research to better understand how musical training may influence the brain and cognition 
-What will I be asked to do? You will be asked to complete several questionnaires that relate to your handedness, musical training and engagement, health history, demographics, and a questionnaire that determines your musical experience. Then, you will proceed with computerized listening and/or cognitive tests. This study will take between 45-60 minutes. 
-Will I benefit by being in this research? There will be no direct benefit to you for taking part in this study. However, information gained from this study may help scientists to better understand how the brain responds to music and music training. You will be compensated financially for your participation. 
-Who will see the information about me? Your participation in this study is confidential. No reports or publications will identify you in any way as being part of this project. All responses will be submitted using an anonymous identification number. The information you give us will be strictly confidential and will not be made available to anyone who is not directly involved in analyzing the data. 
-Can I stop my participation in this study? Your participation in this research is completely voluntary. You do not have to participate if you do not want to and you can refuse to answer any question. Even if you begin the study, you may quit at any time. 
-Who can I contact if I have questions or problems? If you have any questions about this study, please feel free to contact Dr. Psyche Loui (mindlabwes@gmail.com), the Principal Investigator. 
-Who can I contact about my rights as a participant? If you have any questions about your rights in this research, you may contact Nan C. Regina, Director, Human Subject Research Protection, Mail Stop: 560-177, 360 Huntington Avenue, Northeastern University, Boston, MA 02115. Tel: 617.373.4588, Email: n.regina@neu.edu. You may call anonymously if you wish. 
-If you want a copy of this consent for your records, you can print it from the screen. 
-<strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
-    </div>
-`,
+      <div class="consent-box">
+      <h2>Consent</h2>
+      Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information.
+  Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating.
+  Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing.
+  Why is this research study being done? This study is part of the research to better understand how musical training may influence the brain and cognition
+  What will I be asked to do? You will be asked to complete several questionnaires that relate to your handedness, musical training and engagement, health history, demographics, and a questionnaire that determines your musical experience. Then, you will proceed with computerized listening and/or cognitive tests. This study will take between 45-60 minutes.
+  Will I benefit by being in this research? There will be no direct benefit to you for taking part in this study. However, information gained from this study may help scientists to better understand how the brain responds to music and music training. You will be compensated financially for your participation.
+  Who will see the information about me? Your participation in this study is confidential. No reports or publications will identify you in any way as being part of this project. All responses will be submitted using an anonymous identification number. The information you give us will be strictly confidential and will not be made available to anyone who is not directly involved in analyzing the data.
+  Can I stop my participation in this study? Your participation in this research is completely voluntary. You do not have to participate if you do not want to and you can refuse to answer any question. Even if you begin the study, you may quit at any time.
+  Who can I contact if I have questions or problems? If you have any questions about this study, please feel free to contact Dr. Psyche Loui (mindlabwes@gmail.com), the Principal Investigator.
+  Who can I contact about my rights as a participant? If you have any questions about your rights in this research, you may contact Nan C. Regina, Director, Human Subject Research Protection, Mail Stop: 560-177, 360 Huntington Avenue, Northeastern University, Boston, MA 02115. Tel: 617.373.4588, Email: n.regina@neu.edu. You may call anonymously if you wish.
+  If you want a copy of this consent for your records, you can print it from the screen.
+  <strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
+      </div>
+  `,
     questions: [
       {
         prompt: "",
