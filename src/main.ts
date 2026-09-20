@@ -316,19 +316,33 @@ If you want a copy of this consent for your records, you can print it from the s
     songIndex: 0,
   });
 
-  timeline.push({
-    type: GradCptUnmodPlugin,
-    stimulusFiles: stimulusFileSets[0],
-    songIndex: 0,
-    difficulty: () => calibratedDifficulty,
-  });
+  const unmodFirst: boolean = Math.random() >= 0.5;
+  const unmodFileSet: string[] = [...stimulusFileSets[0]].sort(
+    () => Math.random() - 0.5,
+  );
+  let modFileSet: string[] = [...stimulusFileSets[0]].sort(
+    () => Math.random() - 0.5,
+  );
 
-  timeline.push({
-    type: GradCptModPlugin,
-    stimulusFiles: stimulusFileSets[0],
-    songIndex: 0,
-    difficulty: () => calibratedDifficulty,
-  });
+  while (unmodFileSet[unmodFileSet.length - 1] === modFileSet[0]) {
+    modFileSet = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
+  }
+
+  if (unmodFirst) {
+    timeline.push({
+      type: GradCptUnmodPlugin,
+      stimulusFiles: unmodFileSet,
+      songIndex: 0,
+      difficulty: () => calibratedDifficulty,
+    });
+  } else {
+    timeline.push({
+      type: GradCptModPlugin,
+      stimulusFiles: modFileSet,
+      songIndex: 0,
+      difficulty: () => calibratedDifficulty,
+    });
+  }
 
   if (onPavlovia) {
     timeline.push({ type: pavloviaPlugin, command: "finish" });
