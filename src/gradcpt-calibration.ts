@@ -26,7 +26,7 @@ function runGradCpt(
   calibratedDifficulty = null;
   displayElement.innerHTML = `
     <div id="start-screen">
-      <h1>This study requires fullscreen.</h1>
+      <p>In this section, you will perform the full attention task. This version of the task will be faster paced than the practice. We will also alter the difficulty of the task as you go by making each scene image fade into the next. Please respond (SPACEBAR or NO SPACEBAR) to the image that the screen is fading <em>into</em>.</p>
       <p>Click to enter fullscreen and start.</p>
     </div>
     <div id="app" style="display:none">
