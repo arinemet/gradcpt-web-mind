@@ -35,105 +35,63 @@ export class ModulationControllerPlugin {
       depth: 0.25,
       frequency: 10,
     }));
-    const options = settings
-      .map((song, index) => `<option value="${index}">${song.name}</option>`)
-      .join("");
+
+    const DEPTH_MIN = 0;
+    const DEPTH_MAX = 0.5;
+    const DEPTH_STEP = 0.05;
 
     displayElement.innerHTML = `
       <div class="audio-setup">
         <h2>Modulation depth setter</h2>
-        <p>Please set the modulation to the <b>highest possible tolerable value</b>. You will have to stop and start the preview to hear your changes. <br>Once you find the modulation settings that you like, move onto the next song by picking it from the dropdown.<br>Once you are fully done, click continue near the botton of the page.</p>
+        <p>Click <b>New song</b> to start playing the next song. While it plays, press <b>1</b> to increase the amplitude modulation and <b>2</b> to decrease it. Use the <b>highest amount of modulation that would still be tolerable</b> as background music while you work.<br>Once you're happy with the setting, click <b>Save</b>, then click <b>New song</b> to move on to the next one.</p>
 
         <div class="audio-control">
-          <label for="modulation-song-select">Song</label>
-          <select id="modulation-song-select">${options}</select>
+          <span id="song-status">No song playing yet.</span>
         </div>
 
         <div class="audio-control">
-          <label for="depth-slider">Depth <output id="depth-value">0.25</output></label>
-          <button id="increase-depth" type="button" aria-label="Increase depth by 0.05">Up</button>
-          <input id="depth-slider" type="range" min="0" max="0.5" step="0.05" value="0.25">
-          <button id="decrease-depth" type="button">Down</button>
+          <span>Depth: <output id="depth-value">–</output></span>
         </div>
 
         <div class="audio-setup-actions">
-          <button id="preview-song" type="button">Play preview</button>
-          <button id="confirm-modulation" class="primary" type="button">Continue</button>
+          <button id="new-song" type="button">New song</button>
+          <button id="save-modulation" class="primary" type="button" disabled>Save</button>
         </div>
         <p id="audio-error" role="alert"></p>
       </div>
     `;
 
-    const songSelect = displayElement.querySelector<HTMLSelectElement>(
-      "#modulation-song-select",
-    )!;
-    const depthSlider =
-      displayElement.querySelector<HTMLInputElement>("#depth-slider")!;
+    const songStatus =
+      displayElement.querySelector<HTMLSpanElement>("#song-status")!;
     const depthValue =
       displayElement.querySelector<HTMLOutputElement>("#depth-value")!;
-    const increaseDepthButton =
-      displayElement.querySelector<HTMLButtonElement>("#increase-depth")!;
-    const decreaseDepthButton =
-      displayElement.querySelector<HTMLButtonElement>("#decrease-depth")!;
-    const previewButton =
-      displayElement.querySelector<HTMLButtonElement>("#preview-song")!;
-    const confirmButton = displayElement.querySelector<HTMLButtonElement>(
-      "#confirm-modulation",
-    )!;
+    const newSongButton =
+      displayElement.querySelector<HTMLButtonElement>("#new-song")!;
+    const saveButton =
+      displayElement.querySelector<HTMLButtonElement>("#save-modulation")!;
     const error =
       displayElement.querySelector<HTMLParagraphElement>("#audio-error")!;
 
-    let playing = false;
+    let currentIndex = -1;
     let stopPlayer = () => {};
-    let previewTimer = 0;
+    let playing = false;
 
-    const currentSettings = () => settings[Number(songSelect.value)];
+    const currentSettings = () => settings[currentIndex];
+
     const stopPreview = () => {
-      window.clearTimeout(previewTimer);
       stopPlayer();
       stopPlayer = () => {};
       playing = false;
-      previewButton.textContent = "Play preview";
-    };
-    const showSettings = () => {
-      const current = currentSettings();
-      depthSlider.value = String(current.depth);
-      depthValue.value = current.depth.toFixed(2);
-      increaseDepthButton.disabled = current.depth >= Number(depthSlider.max);
-      decreaseDepthButton.disabled = current.depth <= Number(depthSlider.min);
-    };
-    const changeDepth = (amount: number) => {
-      const current = currentSettings();
-      const minimum = Number(depthSlider.min);
-      const maximum = Number(depthSlider.max);
-      current.depth = Math.min(
-        maximum,
-        Math.max(minimum, Number((current.depth + amount).toFixed(2))),
-      );
-      showSettings();
     };
 
-    songSelect.addEventListener("change", () => {
-      stopPreview();
-      showSettings();
-    });
-    depthSlider.addEventListener("input", () => {
-      currentSettings().depth = Number(depthSlider.value);
-      showSettings();
-    });
-    increaseDepthButton.addEventListener("click", () => changeDepth(0.05));
-    decreaseDepthButton.addEventListener("click", () => changeDepth(-0.05));
+    const showDepth = () => {
+      depthValue.value = currentSettings().depth.toFixed(2);
+    };
 
-    previewButton.addEventListener("click", async () => {
-      if (playing) {
-        stopPreview();
-        return;
-      }
+    const playCurrent = async () => {
       error.textContent = "";
-      previewButton.disabled = true;
-      previewButton.textContent = "Loading…";
+      const current = currentSettings();
       try {
-        const current = currentSettings();
         const player = await amplitudeModulation(
           current.file,
           current.frequency,
@@ -142,21 +100,54 @@ export class ModulationControllerPlugin {
         player.start();
         stopPlayer = () => player.stop();
         playing = true;
-        previewButton.textContent = "Stop preview";
-        previewTimer = window.setTimeout(stopPreview, 10_000);
       } catch {
-        error.textContent = "The preview could not be played.";
-        previewButton.textContent = "Play preview";
+        error.textContent = "The song could not be played.";
         playing = false;
-      } finally {
-        previewButton.disabled = false;
       }
+    };
+
+    const changeDepth = async (amount: number) => {
+      if (!playing) return;
+      const current = currentSettings();
+      current.depth = Math.min(
+        DEPTH_MAX,
+        Math.max(DEPTH_MIN, Number((current.depth + amount).toFixed(2))),
+      );
+      showDepth();
+      stopPreview();
+      await playCurrent();
+    };
+
+    newSongButton.addEventListener("click", async () => {
+      stopPreview();
+      currentIndex += 1;
+      if (currentIndex >= settings.length) {
+        modulationSettings = settings;
+        this.jsPsych.finishTrial({ modulation_settings: modulationSettings });
+        return;
+      }
+      songStatus.textContent = `Now playing: ${currentSettings().name}`;
+      showDepth();
+      saveButton.disabled = false;
+      newSongButton.disabled = true;
+      await playCurrent();
+      newSongButton.disabled = false;
     });
 
-    confirmButton.addEventListener("click", () => {
+    saveButton.addEventListener("click", () => {
       stopPreview();
-      modulationSettings = settings;
-      this.jsPsych.finishTrial({ modulation_settings: modulationSettings });
+      songStatus.textContent = `Saved: ${currentSettings().name} (depth ${currentSettings().depth.toFixed(2)})`;
+      saveButton.disabled = true;
     });
+
+    displayElement.addEventListener("keydown", (event) => {
+      if (event.key === "1") {
+        void changeDepth(DEPTH_STEP);
+      } else if (event.key === "2") {
+        void changeDepth(-DEPTH_STEP);
+      }
+    });
+    displayElement.tabIndex = -1;
+    displayElement.focus();
   }
 }
