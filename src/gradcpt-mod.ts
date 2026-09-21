@@ -24,11 +24,7 @@ function runGradCpt(
 ) {
   sessionCompletedMod = false;
   displayElement.innerHTML = `
-    <div id="start-screen">
-      <h1>This study requires fullscreen.</h1>
-      <p>Click to enter fullscreen and start.</p>
-    </div>
-    <div id="app" style="display:none">
+    <div id="app">
       <canvas width="256" height="256"></canvas>
     </div>
   `;
@@ -52,26 +48,7 @@ function runGradCpt(
     return out;
   }
 
-  const startScreen =
-    displayElement.querySelector<HTMLDivElement>("#start-screen")!;
-  const appDiv = displayElement.querySelector<HTMLDivElement>("#app")!;
-  startScreen.addEventListener(
-    "click",
-    async () => {
-      const isSafari =
-        /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
-        !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
-      if (!isSafari) {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        }
-      } else {
-        alert(
-          "Fullscreen is not yet supported on Safari as sound playback doesn't work",
-        );
-      }
-      startScreen.style.display = "none";
-      appDiv.style.display = "";
+  (async () => {
       const song = modulationSettings[songIndex];
       if (!song) {
         throw new Error(
@@ -236,9 +213,7 @@ function runGradCpt(
       }
 
       frameId = requestAnimationFrame(frame);
-    },
-    { once: true },
-  );
+  })();
 }
 
 export class GradCptModPlugin {

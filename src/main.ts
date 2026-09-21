@@ -19,6 +19,7 @@ import { SongPickerPlugin } from "./song-picker.ts";
 import { HeadphoneCheckPlugin } from "./headphone-check.ts";
 import { BackgroundQuestionsPlugin } from "./background-questions.ts";
 import { GradCptInstructionsPlugin } from "./gradcpt-instructions.ts";
+import { GradCptMainInstructionsPlugin } from "./gradcpt-main-instructions.ts";
 import { GeneralInstructionsPlugin } from "./general-instructions.ts";
 
 const { initJsPsych } = jsPsychModule;
@@ -329,24 +330,30 @@ async function main() {
   let modFileSet: string[] = [...stimulusFileSets[0]].sort(
     () => Math.random() - 0.5,
   );
+  let passedCalibratedDifficulty: number = 0;
+  if (calibratedDifficulty !== null) {
+    passedCalibratedDifficulty = calibratedDifficulty;
+  }
 
   while (unmodFileSet[unmodFileSet.length - 1] === modFileSet[0]) {
     modFileSet = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
   }
+
+  timeline.push({ type: GradCptMainInstructionsPlugin });
 
   if (unmodFirst) {
     timeline.push({
       type: GradCptUnmodPlugin,
       stimulusFiles: unmodFileSet,
       songIndex: 0,
-      difficulty: () => calibratedDifficulty,
+      difficulty: () => passedCalibratedDifficulty,
     });
   } else {
     timeline.push({
       type: GradCptModPlugin,
       stimulusFiles: modFileSet,
       songIndex: 0,
-      difficulty: () => calibratedDifficulty,
+      difficulty: () => passedCalibratedDifficulty,
     });
   }
 
