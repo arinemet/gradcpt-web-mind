@@ -18,12 +18,14 @@ export class GeneralInstructionsPlugin {
     Before we do that, we want to help you select music that might best help your cognitive functioning. <br>
     <b>Click on the text to continue.</b></p></div>`;
 
-    displayElement.addEventListener(
-      "click",
-      () => {
-        this.jsPsych.finishTrial();
-      },
-      { once: true },
-    );
+    setTimeout(() => {
+      displayElement.addEventListener(
+        "click",
+        () => {
+          this.jsPsych.finishTrial();
+        },
+        { once: true },
+      );
+    }, 0);
   }
 }

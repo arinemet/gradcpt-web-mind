@@ -12,7 +12,7 @@ import {
   GradCptPracticePlugin,
   sessionCompletedPractice,
 } from "./gradcpt-practice.ts";
-import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
+import { loadImage, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
 import { ModulationControllerPlugin } from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
@@ -21,16 +21,10 @@ import { BackgroundQuestionsPlugin } from "./background-questions.ts";
 import { GradCptInstructionsPlugin } from "./gradcpt-instructions.ts";
 import { GradCptMainInstructionsPlugin } from "./gradcpt-main-instructions.ts";
 import { GeneralInstructionsPlugin } from "./general-instructions.ts";
+import { DropdownPlugin } from "./dropdown.ts";
 import { SongFamiliarityPlugin } from "./song-familiarity.ts";
 
 const { initJsPsych } = jsPsychModule;
-
-declare global {
-  interface Window {
-    jsPsychModule?: typeof jsPsychModule;
-    jsPsychPavlovia?: unknown;
-  }
-}
 
 const blockMobileUsers = (): void => {
   const userAgent: string = navigator.userAgent;
@@ -71,10 +65,8 @@ async function main() {
   );
   loadingMessage.textContent = "";
 
-  const onPavlovia = location.hostname === "run.pavlovia.org";
   const jsPsych = initJsPsych({
     on_finish: () => {
-      if (onPavlovia) return;
       const sessionCompleted =
         sessionCompletedPractice &&
         sessionCompletedCalibration &&
@@ -86,37 +78,46 @@ async function main() {
     },
   });
   const timeline: object[] = [];
-  let pavloviaPlugin: unknown;
 
-  if (onPavlovia) {
-    window.jsPsychModule = jsPsychModule;
-    await loadScript("https://pavlovia.org/lib/jspsych-7-pavlovia-2022.1.1.js");
-    pavloviaPlugin = window.jsPsychPavlovia;
-    if (typeof pavloviaPlugin !== "function") {
-      throw new Error("could not load the Pavlovia jsPsych plugin");
-    }
-    timeline.push({ type: pavloviaPlugin, command: "init" });
-  }
+  let selectedOption = "";
 
-  timeline.push({
+  const menuTrial = {
+    type: DropdownPlugin,
+    on_finish: (data: { selected_option: string }) => {
+      selectedOption = data.selected_option;
+    },
+  };
+
+  const consentTrial = {
     type: SurveyMultiChoicePlugin,
     preamble: `
-      <div class="consent-box">
-      <h2>Consent</h2>
-      Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information.
-  Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating.
-  Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing.
-  Why is this research study being done? This study is part of the research to better understand how musical training may influence the brain and cognition
-  What will I be asked to do? You will be asked to complete several questionnaires that relate to your handedness, musical training and engagement, health history, demographics, and a questionnaire that determines your musical experience. Then, you will proceed with computerized listening and/or cognitive tests. This study will take between 45-60 minutes.
-  Will I benefit by being in this research? There will be no direct benefit to you for taking part in this study. However, information gained from this study may help scientists to better understand how the brain responds to music and music training. You will be compensated financially for your participation.
-  Who will see the information about me? Your participation in this study is confidential. No reports or publications will identify you in any way as being part of this project. All responses will be submitted using an anonymous identification number. The information you give us will be strictly confidential and will not be made available to anyone who is not directly involved in analyzing the data.
-  Can I stop my participation in this study? Your participation in this research is completely voluntary. You do not have to participate if you do not want to and you can refuse to answer any question. Even if you begin the study, you may quit at any time.
-  Who can I contact if I have questions or problems? If you have any questions about this study, please feel free to contact Dr. Psyche Loui (mindlabwes@gmail.com), the Principal Investigator.
-  Who can I contact about my rights as a participant? If you have any questions about your rights in this research, you may contact Nan C. Regina, Director, Human Subject Research Protection, Mail Stop: 560-177, 360 Huntington Avenue, Northeastern University, Boston, MA 02115. Tel: 617.373.4588, Email: n.regina@neu.edu. You may call anonymously if you wish.
-  If you want a copy of this consent for your records, you can print it from the screen.
-  <strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
-      </div>
-  `,
+    <div class="consent-box">
+    Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information. 
+
+Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating. 
+
+Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing. 
+
+Why is this research study being done? This study is part of the research to better understand how musical training may influence the brain and cognition 
+
+What will I be asked to do? You will be asked to complete several questionnaires that relate to your handedness, musical training and engagement, health history, demographics, and a questionnaire that determines your musical experience. Then, you will proceed with computerized listening and/or cognitive tests. This study will take between 45-60 minutes. 
+
+Will I benefit by being in this research? There will be no direct benefit to you for taking part in this study. However, information gained from this study may help scientists to better understand how the brain responds to music and music training. You will be compensated financially for your participation. 
+
+Who will see the information about me? Your participation in this study is confidential. No reports or publications will identify you in any way as being part of this project. All responses will be submitted using an anonymous identification number. The information you give us will be strictly confidential and will not be made available to anyone who is not directly involved in analyzing the data. 
+
+Can I stop my participation in this study? Your participation in this research is completely voluntary. You do not have to participate if you do not want to and you can refuse to answer any question. Even if you begin the study, you may quit at any time. 
+
+Who can I contact if I have questions or problems? If you have any questions about this study, please feel free to contact Dr. Psyche Loui (mindlabwes@gmail.com), the Principal Investigator. 
+
+Who can I contact about my rights as a participant? If you have any questions about your rights in this research, you may contact Nan C. Regina, Director, Human Subject Research Protection, Mail Stop: 560-177, 360 Huntington Avenue, Northeastern University, Boston, MA 02115. Tel: 617.373.4588, Email: n.regina@neu.edu. You may call anonymously if you wish. 
+
+<h2>Consent</h2>
+If you want a copy of this consent for your records, you can print it from the screen. 
+
+<strong>If you wish to participate, please select “I Agree.” If you do not wish to participate, please select “I Disagree” or close your browser.</strong>
+    </div>
+`,
     questions: [
       {
         prompt: "",
@@ -132,17 +133,15 @@ async function main() {
         jsPsych.endExperiment("You chose to not participate");
       }
     },
-  });
+  };
 
-  timeline.push({ type: HeadphoneCheckPlugin });
+  const headphoneCheckTrial = { type: HeadphoneCheckPlugin };
 
-  timeline.push({
-    type: BackgroundQuestionsPlugin,
-  });
+  const backgroundQuestionsTrial = { type: BackgroundQuestionsPlugin };
 
-  timeline.push({ type: GeneralInstructionsPlugin });
+  const generalInstructionsTrial = { type: GeneralInstructionsPlugin };
 
-  timeline.push({
+  const songPickerTrial = {
     type: SongPickerPlugin,
     songs: [
       {
@@ -306,63 +305,106 @@ async function main() {
         frequency: 5.333333333,
       },
     ],
-  });
+  };
 
-  timeline.push({ type: SongFamiliarityPlugin });
+  const songFamiliarityTrial = { type: SongFamiliarityPlugin };
 
-  timeline.push({ type: ModulationControllerPlugin });
+  const modulationControllerTrial = { type: ModulationControllerPlugin };
 
-  timeline.push({ type: GradCptInstructionsPlugin });
+  const gradCptInstructionsTrial = { type: GradCptInstructionsPlugin };
 
-  timeline.push({
+  const gradCptPracticeTrial = {
     type: GradCptPracticePlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
-  });
+  };
 
-  timeline.push({
+  const gradCptCalibrationTrial = {
     type: GradCptCalibrationPlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
-  });
+  };
 
-  const unmodFirst: boolean = Math.random() >= 0.5;
-  const unmodFileSet: string[] = [...stimulusFileSets[0]].sort(
-    () => Math.random() - 0.5,
-  );
-  let modFileSet: string[] = [...stimulusFileSets[0]].sort(
-    () => Math.random() - 0.5,
-  );
   let passedCalibratedDifficulty: number = 0;
   if (calibratedDifficulty !== null) {
     passedCalibratedDifficulty = calibratedDifficulty;
   }
 
-  while (unmodFileSet[unmodFileSet.length - 1] === modFileSet[0]) {
-    modFileSet = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
-  }
+  const gradCptMainInstructionsTrial = { type: GradCptMainInstructionsPlugin };
 
-  timeline.push({ type: GradCptMainInstructionsPlugin });
+  const gradCptModTrial = {
+    type: GradCptModPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+    difficulty: () => passedCalibratedDifficulty,
+  };
 
-  if (unmodFirst) {
-    timeline.push({
-      type: GradCptUnmodPlugin,
-      stimulusFiles: unmodFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
-  } else {
-    timeline.push({
-      type: GradCptModPlugin,
-      stimulusFiles: modFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
-  }
+  const gradCptUnmodTrial = {
+    type: GradCptUnmodPlugin,
+    stimulusFiles: stimulusFileSets[0],
+    songIndex: 0,
+    difficulty: () => passedCalibratedDifficulty,
+  };
 
-  if (onPavlovia) {
-    timeline.push({ type: pavloviaPlugin, command: "finish" });
-  }
+  timeline.push({
+    timeline: [
+      menuTrial,
+      {
+        timeline: [consentTrial],
+        conditional_function: () => selectedOption === "consent-form",
+      },
+      {
+        timeline: [headphoneCheckTrial],
+        conditional_function: () => selectedOption === "headphone-check",
+      },
+      {
+        timeline: [backgroundQuestionsTrial],
+        conditional_function: () => selectedOption === "background-questions",
+      },
+      {
+        timeline: [generalInstructionsTrial],
+        conditional_function: () => selectedOption === "general-instr",
+      },
+      {
+        timeline: [songPickerTrial],
+        conditional_function: () => selectedOption === "song-select",
+      },
+      {
+        timeline: [songFamiliarityTrial],
+        conditional_function: () =>
+          selectedOption === "song-familiarity-questions",
+      },
+      {
+        timeline: [modulationControllerTrial],
+        conditional_function: () => selectedOption === "modulation-controller",
+      },
+      {
+        timeline: [gradCptInstructionsTrial],
+        conditional_function: () => selectedOption === "gradcpt-general-instr",
+      },
+      {
+        timeline: [gradCptPracticeTrial],
+        conditional_function: () => selectedOption === "gradcpt-practice",
+      },
+      {
+        timeline: [gradCptCalibrationTrial],
+        conditional_function: () => selectedOption === "gradcpt-calib",
+      },
+      {
+        timeline: [gradCptMainInstructionsTrial],
+        conditional_function: () => selectedOption === "gradcpt-main-instr",
+      },
+      {
+        timeline: [gradCptUnmodTrial],
+        conditional_function: () => selectedOption === "gradcpt-unmod",
+      },
+      {
+        timeline: [gradCptModTrial],
+        conditional_function: () => selectedOption === "gradcpt-mod",
+      },
+    ],
+    loop_function: () => selectedOption !== "exit",
+  });
 
   await jsPsych.run(timeline);
 }

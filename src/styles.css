@@ -331,6 +331,30 @@ body:has(#song-familiarity-form) .jspsych-content {
   flex: 1 1 auto;
 }
 
+.bq-slider-control {
+  flex: 1 1 auto;
+}
+
+.bq-slider-track {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bq-slider-track output {
+  min-width: 1.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.bq-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  padding-right: calc(1.5rem + 0.75rem);
+}
+
 #bq-form button[type="submit"],
 #song-familiarity-form button[type="submit"] {
   margin-top: 0.5rem;

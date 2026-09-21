@@ -3,13 +3,24 @@ import { selectedSongs } from "./song-picker.ts";
 
 function sliderQuestion(tag: string, prompt: string, subLabels: string[], min: number, max: number): string {
   const rows = subLabels
-    .map(
-      (label, i) => `
+    .map((label, i) => {
+      const inputId = `${tag}-${i + 1}`;
+      const ticks = Array.from({ length: max - min + 1 }, (_, n) => min + n)
+        .map((n) => `<span>${n}</span>`)
+        .join("");
+
+      return `
       <div class="bq-slider-row">
-        <label>${label}</label>
-        <input type="range" name="${tag}.${i + 1}" min="${min}" max="${max}" step="1" value="${min}" />
-      </div>`,
-    )
+        <label for="${inputId}">${label}</label>
+        <div class="bq-slider-control">
+          <div class="bq-slider-track">
+            <input type="range" id="${inputId}" name="${tag}.${i + 1}" min="${min}" max="${max}" step="1" value="${min}" />
+            <output for="${inputId}">${min}</output>
+          </div>
+          <div class="bq-slider-ticks">${ticks}</div>
+        </div>
+      </div>`;
+    })
     .join("");
 
   return `
@@ -54,6 +65,13 @@ export class SongFamiliarityPlugin {
     `;
 
     const form = displayElement.querySelector<HTMLFormElement>("#song-familiarity-form")!;
+
+    form.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input) => {
+      const output = input.nextElementSibling as HTMLOutputElement;
+      input.addEventListener("input", () => {
+        output.textContent = input.value;
+      });
+    });
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
