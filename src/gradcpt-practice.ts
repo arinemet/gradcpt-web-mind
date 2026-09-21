@@ -14,6 +14,7 @@ const difficulties: [number, number][] = [
 ];
 
 export let sessionCompletedPractice = false;
+export let redo = false;
 
 function runGradCpt(
   jsPsych: JsPsych,
@@ -25,7 +26,7 @@ function runGradCpt(
   displayElement.innerHTML = `
     <div id="start-screen">
       <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward. Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</p>
-      <p>Click to enter fullscreen and start.</p>
+      <p>If you are directed back to this screen again, it means that you scored less than a 95%, and you are given more practice time. Click to enter fullscreen and start.</p>
     </div>
     <div id="app" style="display:none">
       <canvas width="256" height="256"></canvas>
@@ -109,6 +110,7 @@ function runGradCpt(
       let ended = false;
       let frameId = 0;
       let crossFadeFrameId = 0;
+      let lastTwentyTrials: boolean[] = [];
 
       ctx.drawImage(currentImage, 0, 0);
       songPlayer.start();
@@ -152,6 +154,14 @@ function runGradCpt(
         document.removeEventListener("visibilitychange", onVisibilityChange);
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedPractice = reason === null;
+        let numCorrect: number = 0;
+        for (const e of lastTwentyTrials) {
+          if (e) {
+            numCorrect++;
+          }
+        }
+        let ratio: number = numCorrect / lastTwentyTrials.length;
+        redo = ratio < 0.9;
         jsPsych.finishTrial();
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
@@ -238,6 +248,11 @@ function runGradCpt(
           rt = null;
           spacePressCount = 0;
           difficultyBefore = difficulty;
+          lastTwentyTrials.push(clicked && city);
+          if (lastTwentyTrials.length > 20) {
+            // pop first element, oldest element
+            lastTwentyTrials.shift();
+          }
         }
         frameId = requestAnimationFrame(frame);
       }

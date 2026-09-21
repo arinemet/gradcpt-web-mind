@@ -11,6 +11,7 @@ import { GradCptUnmodPlugin, sessionCompletedUnmod } from "./gradcpt-unmod.ts";
 import {
   GradCptPracticePlugin,
   sessionCompletedPractice,
+  redo,
 } from "./gradcpt-practice.ts";
 import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
@@ -314,11 +315,13 @@ async function main() {
 
   timeline.push({ type: GradCptInstructionsPlugin });
 
-  timeline.push({
-    type: GradCptPracticePlugin,
-    stimulusFiles: stimulusFileSets[0],
-    songIndex: 0,
-  });
+  while (!redo) {
+    timeline.push({
+      type: GradCptPracticePlugin,
+      stimulusFiles: stimulusFileSets[0],
+      songIndex: 0,
+    });
+  }
 
   timeline.push({
     type: GradCptCalibrationPlugin,
