@@ -77,6 +77,7 @@ function runGradCpt(
       let startTime = 0;
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
       let clicked = false;
+      let spacePressCount = 0;
       let rt: number | null = null;
       const difficulty = fixedDifficulty;
       let correctStreak = 0;
@@ -147,20 +148,24 @@ function runGradCpt(
           song_name: song.name,
           modulation_depth: song.depth,
           modulation_frequency: song.frequency,
+          flag_spamming: spacePressCount > 3,
         });
       }
 
       function onKeyDown(e: KeyboardEvent) {
         if (e.code === "Escape") finish("escape pressed");
-        if (e.code === "Space" && !e.repeat && !clicked) {
-          rt = performance.now() - lastSwitch;
-          if (city) {
-            correctStreak++;
-            correct();
-          } else {
-            incorrect();
+        if (e.code === "Space" && !e.repeat) {
+          spacePressCount++;
+          if (!clicked) {
+            rt = performance.now() - lastSwitch;
+            if (city) {
+              correctStreak++;
+              correct();
+            } else {
+              incorrect();
+            }
+            clicked = true;
           }
-          clicked = true;
         }
       }
 
@@ -208,6 +213,7 @@ function runGradCpt(
           crossFade(now, difficulty);
           clicked = false;
           rt = null;
+          spacePressCount = 0;
         }
         frameId = requestAnimationFrame(frame);
       }
