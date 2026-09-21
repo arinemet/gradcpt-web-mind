@@ -114,17 +114,10 @@ function runGradCpt(
 
       function incorrect() {
         correctStreak = 0;
-        if (difficulty > 0) {
-          difficulty--;
-        }
         rtimeDiv.textContent = `INCORRECT! Did not click.`;
       }
 
       function correct() {
-        if (correctStreak >= 3 && difficulty < difficulties.length - 1) {
-          difficulty++;
-          correctStreak = 0;
-        }
         rtimeDiv.textContent = `CORRECT!`;
       }
 
@@ -134,7 +127,7 @@ function runGradCpt(
         if (!startTime) startTime = currentTime;
 
         const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / 800, 1);
+        const progress = Math.min(elapsed / 1500, 1);
         const [start, target] = difficulties[difficultyIndex];
         const m = start + (target - start) * progress;
 
@@ -215,7 +208,7 @@ function runGradCpt(
         if (ended) return;
         const now = performance.now();
 
-        if (now - lastSwitch >= 800) {
+        if (now - lastSwitch >= 1500) {
           if (!clicked && city) {
             incorrect();
           } else if (!clicked && !city) {
@@ -232,7 +225,7 @@ function runGradCpt(
           currentImage = stimulusImages[stimulusIndex];
           currentData = imageDataFor(currentImage);
           city = stimulusFiles[stimulusIndex].startsWith("city_");
-          lastSwitch += 800;
+          lastSwitch += 1500;
           startTime = lastSwitch;
           cancelAnimationFrame(crossFadeFrameId);
           crossFade(now, difficulty);
