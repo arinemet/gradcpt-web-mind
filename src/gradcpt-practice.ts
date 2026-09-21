@@ -14,7 +14,7 @@ const difficulties: [number, number][] = [
 ];
 
 export let sessionCompletedPractice = false;
-export let redo = false;
+export let redo = true;
 
 function runGradCpt(
   jsPsych: JsPsych,
