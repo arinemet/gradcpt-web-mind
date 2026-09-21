@@ -222,7 +222,6 @@ function sliderQuestion(
 
 const PAGES: string[] = [
   `
-    <h2>Background Questions</h2>
     ${textQuestion("Q1.02.name", "Your name:")}
     ${radioQuestion("Q1.03.gender", "Your gender identity:", [
       "Male",
@@ -262,7 +261,6 @@ const PAGES: string[] = [
     )}
   `,
   `
-    <h2>BMRQ</h2>
     <p>
       For the next survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says.
     </p>
@@ -307,7 +305,6 @@ const PAGES: string[] = [
     ${bipolarLikert("Q26.BMRQ", "25. When listening to great music I sometimes feel as if I am being lifted into the air.", 5)}
   `,
   `
-    <h2>Gold MSI</h2>
     <p>
       For this survey, each item of this questionnaire is a statement that a person may either agree with or disagree with. For each item, indicate how much you agree or disagree with what the item says.
     </p>
@@ -401,7 +398,6 @@ const PAGES: string[] = [
     ${textQuestion("Q41.GMSI", "39. The instrument I play best (including voice) is")}
   `,
   `
-    <h2>ASRS</h2>
     ${radioQuestion("Q1.ASRS", "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?", FREQUENCY_CHOICES)}
     ${radioQuestion("Q2.ASRS", "How often do you have difficulty getting things in order when you have to do a task that requires organization?", FREQUENCY_CHOICES)}
     ${radioQuestion("Q3.ASRS", "How often do you have problems remembering appointments or obligations?", FREQUENCY_CHOICES)}
@@ -422,7 +418,6 @@ const PAGES: string[] = [
     ${radioQuestion("Q18.ASRS", "How often do you interrupt others when they are busy?", FREQUENCY_CHOICES)}
   `,
   `
-    <h2>Background music effects on performance and emotions</h2>
     <p>
       This part of the survey aims to explore the effect of background music on your performance in daily activities of a "cognitive nature" (e.g., studying, memorizing, reading, writing). Referring to the scale below, please respond to the following statements by selecting the corresponding number, where 1 = Strongly disagree and 7 = Strongly agree. Make sure to respond to all statements as accurately as possible. Background music refers to listening to music as a secondary activity while you perform a primary task (e.g., listening to music while reading). 1 = Strongly disagree 2 = Disagree 3 = Slightly disagree 4 = Neutral 5 = Slightly agree 6 = Agree 7 = Strongly agree
     </p>
@@ -443,7 +438,6 @@ const PAGES: string[] = [
     ${radioQuestion("Q15.musicandemotions", "15. Background music helps me memorize new information.", AGREEMENT_7_CHOICES)}
   `,
   `
-    <h2>Background Music Listening Habits</h2>
     ${textQuestion(
       "Q1.BMLH",
       "How many hours per week (on average) do you listen to music as a primary activity? (i.e. as your main activity, not performing other tasks) (between 0-168)",
@@ -503,11 +497,56 @@ const PAGES: string[] = [
     )}
   `,
   `
-    <h2>Music While Working</h2>
     ${radioQuestion("Q430", "How often do you listen to music while working or studying?", ["Never", "Seldom", "Often", "Usually"])}
     ${textAreaQuestion("Q432", "Describe your listening habits while working.")}
   `,
 ];
+
+// Text fields that should only ever contain a number (letters here suggest
+// the participant is typing garbage rather than reading the question).
+const NUMERIC_TEXT_FIELDS = new Set(["Q1.04.age", "Q1.BMLH", "Q2.BMLH"]);
+
+// Below this, a page was very likely clicked through without reading it.
+const MIN_MS_PER_QUESTION = 700;
+
+function countQuestions(pageHtml: string): number {
+  return (pageHtml.match(/class="bq-question"/g) ?? []).length;
+}
+
+function detectStraightlining(pageResponses: Record<string, unknown>): {
+  tooFast: boolean;
+  straightlined: boolean;
+  nonNumericAnswers: string[];
+} {
+  const groups = new Map<string, string[]>();
+  for (const [key, value] of Object.entries(pageResponses)) {
+    const match = key.match(/^Q\d+[A-Za-z0-9.]*\.(BMRQ|GMSI)$/);
+    if (match && typeof value === "string") {
+      const group = match[1];
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group)!.push(value);
+    }
+  }
+
+  // A page straightlines if it has a substantial Likert battery and every
+  // response in that battery is identical.
+  let straightlined = false;
+  for (const values of groups.values()) {
+    if (values.length >= 5 && new Set(values).size === 1) {
+      straightlined = true;
+    }
+  }
+
+  const nonNumericAnswers: string[] = [];
+  for (const field of NUMERIC_TEXT_FIELDS) {
+    const value = pageResponses[field];
+    if (typeof value === "string" && value.trim() !== "" && !/^\d+$/.test(value.trim())) {
+      nonNumericAnswers.push(field);
+    }
+  }
+
+  return { tooFast: false, straightlined, nonNumericAnswers };
+}
 
 export class BackgroundQuestionsPlugin {
   static info = {
@@ -518,6 +557,7 @@ export class BackgroundQuestionsPlugin {
   private jsPsych: JsPsych;
   private pageIndex = 0;
   private responses: Record<string, unknown> = {};
+  private pageStartTime = 0;
 
   constructor(jsPsych: JsPsych) {
     this.jsPsych = jsPsych;
@@ -529,6 +569,8 @@ export class BackgroundQuestionsPlugin {
 
   private renderPage(displayElement: HTMLElement) {
     const isLastPage = this.pageIndex === PAGES.length - 1;
+
+    this.pageStartTime = performance.now();
 
     displayElement.innerHTML = `
       <form id="bq-form">
@@ -579,9 +621,20 @@ export class BackgroundQuestionsPlugin {
         }
       }
 
+      const durationMs = performance.now() - this.pageStartTime;
+      const questionCount = countQuestions(PAGES[this.pageIndex]);
+      const msPerQuestion = questionCount > 0 ? durationMs / questionCount : durationMs;
+      const { straightlined, nonNumericAnswers } = detectStraightlining(pageResponses);
+      const tooFast = msPerQuestion < MIN_MS_PER_QUESTION;
+
       this.jsPsych.data.write({
         trial_type: "background-questions",
         page_index: this.pageIndex,
+        page_duration_ms: durationMs,
+        ms_per_question: msPerQuestion,
+        flag_too_fast: tooFast,
+        flag_straightlining: straightlined,
+        flag_non_numeric_answers: nonNumericAnswers,
         ...pageResponses,
       });
 
