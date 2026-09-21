@@ -1,6 +1,5 @@
 import { ParameterType } from "jspsych";
 import type { JsPsych } from "jspsych";
-import { amplitudeModulation } from "./audio.ts";
 import { modulationSettings } from "./modulation-controller.ts";
 import { loadImage } from "./loader.ts";
 
@@ -68,7 +67,7 @@ function runGradCpt(
         }
       } else {
         alert(
-          "Fullscreen is not yet supported on Safari as sound playback doesn't work",
+          "Fullscreen is not yet supported on Safari",
         );
       }
       startScreen.style.display = "none";
@@ -84,11 +83,6 @@ function runGradCpt(
         stimulusFiles.map((fileName) => loadImage(`${BASE}${fileName}`)),
       );
       let stimulusIndex = 0;
-      const songPlayer = await amplitudeModulation(
-        song.file,
-        song.frequency,
-        song.depth,
-      );
 
       offCanvas.width = canvas.width;
       offCanvas.height = canvas.height;
@@ -126,7 +120,6 @@ function runGradCpt(
       }
 
       ctx.drawImage(currentImage, 0, 0);
-      songPlayer.start();
 
       function incorrect() {
         correctStreak = 0;
@@ -177,7 +170,6 @@ function runGradCpt(
         ended = true;
         cancelAnimationFrame(frameId);
         cancelAnimationFrame(crossFadeFrameId);
-        songPlayer.stop();
         document.removeEventListener("keydown", onKeyDown);
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
