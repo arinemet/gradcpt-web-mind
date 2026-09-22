@@ -7,10 +7,7 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        demo: resolve(
-          __dirname,
-          "20759461975940-637856984-52057489365784.html",
-        ),
+        demo: resolve(__dirname, "687439-627493-679486-379428.html"),
       },
     },
   },

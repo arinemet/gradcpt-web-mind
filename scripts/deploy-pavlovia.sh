@@ -11,6 +11,6 @@ if [ -z "${PAVLOVIA_TOKEN:-}" ]; then
   exit 1
 fi
 
-npm run build
-npx gh-pages -d dist -b pavlovia-pages \
+bun run build
+bunx gh-pages -d dist -b pavlovia-pages \
   -r "https://a.nemet:${PAVLOVIA_TOKEN}@gitlab.pavlovia.org/a.nemet/gradcpt-web-mind.git"
