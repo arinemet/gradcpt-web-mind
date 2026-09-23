@@ -26,7 +26,7 @@ function runGradCpt(
   displayElement.innerHTML = `
     <div id="start-screen">
       <p>In this section, you will perform the full attention task. This version of the task will be faster paced than the practice. We will also alter the difficulty of the task as you go by making each scene image fade into the next. Please respond (SPACEBAR or NO SPACEBAR) to the image that the screen is fading <em>into</em>.</p>
-      <p>Click to enter fullscreen and start.</p>
+      <button id="continue" class="primary" type="button">Continue</button>
     </div>
     <div id="app" style="display:none">
       <canvas width="256" height="256"></canvas>
@@ -55,7 +55,9 @@ function runGradCpt(
   const startScreen =
     displayElement.querySelector<HTMLDivElement>("#start-screen")!;
   const appDiv = displayElement.querySelector<HTMLDivElement>("#app")!;
-  startScreen.addEventListener(
+  const continueButton =
+    displayElement.querySelector<HTMLButtonElement>("#continue")!;
+  continueButton.addEventListener(
     "click",
     async () => {
       const isSafari =

@@ -25,7 +25,8 @@ function runGradCpt(
   displayElement.innerHTML = `
     <div id="start-screen">
       <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward. Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</p>
-      <p>If you are directed back to this screen again, it means that you scored less than a 95%, and you are given more practice time. Click to enter fullscreen and start.</p>
+      <p>If you are directed back to this screen again, it means that you scored less than a 95%, and you are given more practice time.</p>
+      <button id="continue" class="primary" type="button">Continue</button>
     </div>
     <div id="app" style="display:none">
       <canvas width="256" height="256"></canvas>
@@ -56,7 +57,9 @@ function runGradCpt(
   const startScreen =
     displayElement.querySelector<HTMLDivElement>("#start-screen")!;
   const appDiv = displayElement.querySelector<HTMLDivElement>("#app")!;
-  startScreen.addEventListener(
+  const continueButton =
+    displayElement.querySelector<HTMLButtonElement>("#continue")!;
+  continueButton.addEventListener(
     "click",
     async () => {
       const isSafari =
