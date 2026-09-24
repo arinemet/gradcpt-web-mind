@@ -13,7 +13,6 @@ export let modulationSettings: ModulationSettings[] = selectedSongs.map(
   (song) => ({
     ...song,
     depth: 0.25,
-    frequency: 10,
   }),
 );
 
@@ -33,7 +32,6 @@ export class ModulationControllerPlugin {
     const settings: ModulationSettings[] = selectedSongs.map((song) => ({
       ...song,
       depth: 0.25,
-      frequency: 10,
     }));
 
     const DEPTH_MIN = 0;
