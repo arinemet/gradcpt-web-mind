@@ -354,10 +354,22 @@ async function main() {
       songIndex: 0,
       difficulty: () => passedCalibratedDifficulty,
     });
+    timeline.push({
+      type: GradCptModPlugin,
+      stimulusFiles: modFileSet,
+      songIndex: 0,
+      difficulty: () => passedCalibratedDifficulty,
+    });
   } else {
     timeline.push({
       type: GradCptModPlugin,
       stimulusFiles: modFileSet,
+      songIndex: 0,
+      difficulty: () => passedCalibratedDifficulty,
+    });
+    timeline.push({
+      type: GradCptUnmodPlugin,
+      stimulusFiles: unmodFileSet,
       songIndex: 0,
       difficulty: () => passedCalibratedDifficulty,
     });
