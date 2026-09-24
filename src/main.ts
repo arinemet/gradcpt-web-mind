@@ -348,31 +348,39 @@ async function main() {
   timeline.push({ type: GradCptMainInstructionsPlugin });
 
   if (unmodFirst) {
-    timeline.push({
-      type: GradCptUnmodPlugin,
-      stimulusFiles: unmodFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
-    timeline.push({
-      type: GradCptModPlugin,
-      stimulusFiles: modFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
+    for (let i = 0; i < unmodFileSet.length; i++) {
+      timeline.push({
+        type: GradCptUnmodPlugin,
+        stimulusFiles: unmodFileSet,
+        songIndex: i,
+        difficulty: () => passedCalibratedDifficulty,
+      });
+    }
+    for (let i = 0; i < modFileSet.length; i++) {
+      timeline.push({
+        type: GradCptModPlugin,
+        stimulusFiles: modFileSet,
+        songIndex: i,
+        difficulty: () => passedCalibratedDifficulty,
+      });
+    }
   } else {
-    timeline.push({
-      type: GradCptModPlugin,
-      stimulusFiles: modFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
-    timeline.push({
-      type: GradCptUnmodPlugin,
-      stimulusFiles: unmodFileSet,
-      songIndex: 0,
-      difficulty: () => passedCalibratedDifficulty,
-    });
+    for (let i = 0; i < modFileSet.length; i++) {
+      timeline.push({
+        type: GradCptModPlugin,
+        stimulusFiles: modFileSet,
+        songIndex: i,
+        difficulty: () => passedCalibratedDifficulty,
+      });
+    }
+    for (let i = 0; i < unmodFileSet.length; i++) {
+      timeline.push({
+        type: GradCptUnmodPlugin,
+        stimulusFiles: unmodFileSet,
+        songIndex: i,
+        difficulty: () => passedCalibratedDifficulty,
+      });
+    }
   }
 
   if (onPavlovia) {
