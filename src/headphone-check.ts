@@ -35,6 +35,6 @@ export class HeadphoneCheckPlugin {
     };
 
     $(document).on(eventName, onComplete);
-    HeadphoneCheck.runHeadphoneCheck({ debug: true });
+    HeadphoneCheck.runHeadphoneCheck({});
   }
 }
