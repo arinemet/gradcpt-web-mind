@@ -34,7 +34,7 @@ export class ModulationControllerPlugin {
       depth: 0.25,
     }));
 
-    const DEPTH_MIN = 0;
+    const DEPTH_MIN = 0.05;
     const DEPTH_MAX = 0.5;
     const DEPTH_STEP = 0.05;
 
