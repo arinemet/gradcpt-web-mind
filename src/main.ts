@@ -315,13 +315,16 @@ async function main() {
 
   timeline.push({ type: GradCptInstructionsPlugin });
 
-  while (!redo) {
-    timeline.push({
-      type: GradCptPracticePlugin,
-      stimulusFiles: stimulusFileSets[0],
-      songIndex: 0,
-    });
-  }
+  timeline.push({
+    timeline: [
+      {
+        type: GradCptPracticePlugin,
+        stimulusFiles: stimulusFileSets[0],
+        songIndex: 0,
+      },
+    ],
+    loop_function: () => redo,
+  });
 
   timeline.push({
     type: GradCptCalibrationPlugin,
