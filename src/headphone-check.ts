@@ -21,10 +21,14 @@ export class HeadphoneCheckPlugin {
       $(document).off(eventName, onComplete);
 
       if (data.didPass) {
-        this.jsPsych.finishTrial({ did_pass: true });
         displayElement.innerHTML = `
         <h1>Headphone check succeeded.</h1>
+        <button id="hc-continue-btn">Continue</button>
       `;
+        const continueBtn = displayElement.querySelector("#hc-continue-btn");
+        continueBtn?.addEventListener("click", () => {
+          this.jsPsych.finishTrial({ did_pass: true });
+        });
         return;
       }
 
