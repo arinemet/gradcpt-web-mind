@@ -333,10 +333,10 @@ async function main() {
   });
 
   const unmodFirst: boolean = Math.random() >= 0.5;
-  const unmodFileSet: string[] = [...stimulusFileSets[0]].sort(
+  const group1: string[] = [...stimulusFileSets[0]].sort(
     () => Math.random() - 0.5,
   );
-  let modFileSet: string[] = [...stimulusFileSets[0]].sort(
+  let group2: string[] = [...stimulusFileSets[0]].sort(
     () => Math.random() - 0.5,
   );
   let passedCalibratedDifficulty: number = 0;
@@ -344,8 +344,19 @@ async function main() {
     passedCalibratedDifficulty = calibratedDifficulty;
   }
 
-  while (unmodFileSet[unmodFileSet.length - 1] === modFileSet[0]) {
-    modFileSet = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
+  while (group1[group1.length - 1] === group2[0]) {
+    group2 = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
+  }
+
+  let unmodFileSet;
+  let modFileSet;
+
+  if (unmodFirst) {
+    unmodFileSet = group1;
+    modFileSet = group2;
+  } else {
+    unmodFileSet = group2;
+    modFileSet = group1;
   }
 
   timeline.push({ type: GradCptMainInstructionsPlugin });
