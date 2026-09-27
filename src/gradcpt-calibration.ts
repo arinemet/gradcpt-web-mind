@@ -63,14 +63,12 @@ function runGradCpt(
       const isSafari =
         /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
         !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
-      if (!isSafari) {
+      if (isSafari) {
+        alert("Safari is not supported. Switch to another browser instead.");
+      } else {
         if (!document.fullscreenElement) {
           await document.documentElement.requestFullscreen();
         }
-      } else {
-        alert(
-          "Fullscreen is not yet supported on Safari",
-        );
       }
       startScreen.style.display = "none";
       appDiv.style.display = "";
