@@ -15,6 +15,8 @@ body {
   padding: 2rem;
   text-align: center;
   cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1.6;
 }
 
 #app {
@@ -38,6 +40,22 @@ body {
   color: #fff;
   text-align: left;
   white-space: pre-line;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.gradcpt-break {
+  max-width: 36rem;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.gradcpt-break #break-countdown {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 1rem 0;
 }
 
 .consent-box {

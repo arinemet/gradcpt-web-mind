@@ -15,14 +15,20 @@ import {
 } from "./gradcpt-practice.ts";
 import { loadImage, loadScript, parseStimOrder } from "./loader.ts";
 import SurveyMultiChoicePlugin from "@jspsych/plugin-survey-multi-choice";
-import { ModulationControllerPlugin } from "./modulation-controller.ts";
+import {
+  ModulationControllerPlugin,
+  modulationSettings,
+} from "./modulation-controller.ts";
 import { SongPickerPlugin } from "./song-picker.ts";
 import { HeadphoneCheckPlugin } from "./headphone-check.ts";
 import { BackgroundQuestionsPlugin } from "./background-questions.ts";
 import { GradCptInstructionsPlugin } from "./gradcpt-instructions.ts";
 import { GradCptMainInstructionsPlugin } from "./gradcpt-main-instructions.ts";
+import { GradCptBreakPlugin } from "./gradcpt-break.ts";
 import { GeneralInstructionsPlugin } from "./general-instructions.ts";
 import { SongFamiliarityPlugin } from "./song-familiarity.ts";
+import { TechnicalIssuesPlugin } from "./technical-issues.ts";
+import { sessionCompleteHtml, studyFailedHtml } from "./end-of-study.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -82,8 +88,8 @@ async function main() {
         sessionCompletedMod &&
         sessionCompletedUnmod;
       jsPsych.getDisplayElement().innerHTML = sessionCompleted
-        ? `<h1>Session complete.</h1><p>Thank you for participating.</p>`
-        : `<h1>Session incomplete, exited.</h1><p>You exited from fullscreen. Thank you for participating.</p>`;
+        ? sessionCompleteHtml
+        : studyFailedHtml;
     },
   });
   const timeline: object[] = [];
@@ -361,8 +367,21 @@ async function main() {
 
   timeline.push({ type: GradCptMainInstructionsPlugin });
 
+  const songOrder: number[] = modulationSettings
+    .map((_, i) => i)
+    .sort(() => Math.random() - 0.5);
+
+  let isFirstBlock = true;
+  const pushBreak = () => {
+    if (!isFirstBlock) {
+      timeline.push({ type: GradCptBreakPlugin });
+    }
+    isFirstBlock = false;
+  };
+
   if (unmodFirst) {
     for (let i = 0; i < unmodFileSet.length; i++) {
+      pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: unmodFileSet,
@@ -370,24 +389,27 @@ async function main() {
         difficulty: () => passedCalibratedDifficulty,
       });
     }
-    for (let i = 0; i < modFileSet.length; i++) {
+    for (let i = 0; i < songOrder.length; i++) {
+      pushBreak();
       timeline.push({
         type: GradCptModPlugin,
         stimulusFiles: modFileSet,
-        songIndex: i,
+        songIndex: songOrder[i],
         difficulty: () => passedCalibratedDifficulty,
       });
     }
   } else {
-    for (let i = 0; i < modFileSet.length; i++) {
+    for (let i = 0; i < songOrder.length; i++) {
+      pushBreak();
       timeline.push({
         type: GradCptModPlugin,
         stimulusFiles: modFileSet,
-        songIndex: i,
+        songIndex: songOrder[i],
         difficulty: () => passedCalibratedDifficulty,
       });
     }
     for (let i = 0; i < unmodFileSet.length; i++) {
+      pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: unmodFileSet,
@@ -396,6 +418,8 @@ async function main() {
       });
     }
   }
+
+  timeline.push({ type: TechnicalIssuesPlugin });
 
   if (onPavlovia) {
     timeline.push({ type: pavloviaPlugin, command: "finish" });

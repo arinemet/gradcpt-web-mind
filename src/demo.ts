@@ -23,6 +23,13 @@ import { GradCptMainInstructionsPlugin } from "./gradcpt-main-instructions.ts";
 import { GeneralInstructionsPlugin } from "./general-instructions.ts";
 import { DropdownPlugin } from "./dropdown.ts";
 import { SongFamiliarityPlugin } from "./song-familiarity.ts";
+import { GradCptBreakPlugin } from "./gradcpt-break.ts";
+import { TechnicalIssuesPlugin } from "./technical-issues.ts";
+import {
+  EndOfStudyPreviewPlugin,
+  sessionCompleteHtml,
+  studyFailedHtml,
+} from "./end-of-study.ts";
 
 const { initJsPsych } = jsPsychModule;
 
@@ -346,6 +353,20 @@ If you want a copy of this consent for your records, you can print it from the s
     difficulty: () => passedCalibratedDifficulty,
   };
 
+  const gradCptBreakTrial = { type: GradCptBreakPlugin };
+
+  const technicalIssuesTrial = { type: TechnicalIssuesPlugin };
+
+  const endOfStudyCompleteTrial = {
+    type: EndOfStudyPreviewPlugin,
+    html: sessionCompleteHtml,
+  };
+
+  const endOfStudyFailedTrial = {
+    type: EndOfStudyPreviewPlugin,
+    html: studyFailedHtml,
+  };
+
   timeline.push({
     timeline: [
       menuTrial,
@@ -401,6 +422,23 @@ If you want a copy of this consent for your records, you can print it from the s
       {
         timeline: [gradCptModTrial],
         conditional_function: () => selectedOption === "gradcpt-mod",
+      },
+      {
+        timeline: [gradCptBreakTrial],
+        conditional_function: () => selectedOption === "gradcpt-break",
+      },
+      {
+        timeline: [technicalIssuesTrial],
+        conditional_function: () => selectedOption === "technical-issues",
+      },
+      {
+        timeline: [endOfStudyCompleteTrial],
+        conditional_function: () =>
+          selectedOption === "end-of-study-complete",
+      },
+      {
+        timeline: [endOfStudyFailedTrial],
+        conditional_function: () => selectedOption === "end-of-study-failed",
       },
     ],
     loop_function: () => selectedOption !== "exit",

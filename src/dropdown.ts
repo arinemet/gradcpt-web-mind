@@ -34,6 +34,10 @@ export class DropdownPlugin {
             <option value="gradcpt-main-instr">GradCPT Main Instructions</option>
             <option value="gradcpt-unmod">GradCPT Unmodulated</option>
             <option value="gradcpt-mod">GradCPT Modulated</option>
+            <option value="gradcpt-break">GradCPT Break Between Blocks</option>
+            <option value="technical-issues">Technical Issues Survey</option>
+            <option value="end-of-study-complete">End of Study (Complete)</option>
+            <option value="end-of-study-failed">End of Study (Failed)</option>
             <option value="exit">Exit</option>
           </select>
 

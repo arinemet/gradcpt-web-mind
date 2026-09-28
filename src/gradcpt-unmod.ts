@@ -31,194 +31,194 @@ function runGradCpt(
 
   const canvas = displayElement.querySelector<HTMLCanvasElement>("canvas")!;
   const ctx = canvas.getContext("2d")!;
-  const offCanvas = document.createElement("canvas");
-  let offCtx: CanvasRenderingContext2D;
 
-  function imageDataFor(img: HTMLImageElement): ImageData {
-    offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-    offCtx.drawImage(img, 0, 0);
-    return offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
-  }
-
-  function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
-    const out = new ImageData(a.width, a.height);
-    for (let i = 0; i < out.data.length; i++) {
-      out.data[i] = a.data[i] + (b.data[i] - a.data[i]) * m;
-    }
-    return out;
+  function drawDissolve(
+    a: HTMLImageElement,
+    b: HTMLImageElement,
+    m: number,
+  ): void {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(a, 0, 0);
+    ctx.globalAlpha = m;
+    ctx.drawImage(b, 0, 0);
+    ctx.globalAlpha = 1;
   }
 
   (async () => {
-      const song = modulationSettings[songIndex];
-      if (!song) {
-        throw new Error(
-          `Missing modulation settings for song ${songIndex + 1}`,
-        );
+    const isSafari =
+      /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
+      !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
+    if (isSafari) {
+      alert("Safari is not supported. Switch to another browser instead.");
+      jsPsych.endExperiment();
+    } else {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
       }
-      const BASE = import.meta.env.BASE_URL;
-      const stimulusImages = await Promise.all(
-        stimulusFiles.map((fileName) => loadImage(`${BASE}${fileName}`)),
-      );
-      let stimulusIndex = 0;
-      const songPlayer = await amplitudeModulation(
-        song.file,
-        song.frequency,
-        0,
-      );
+    }
+    const song = modulationSettings[songIndex];
+    if (!song) {
+      throw new Error(`Missing modulation settings for song ${songIndex + 1}`);
+    }
+    const BASE = import.meta.env.BASE_URL;
+    const stimulusImages = await Promise.all(
+      stimulusFiles.map((fileName) => loadImage(`${BASE}${fileName}`)),
+    );
+    let stimulusIndex = 0;
+    const songPlayer = await amplitudeModulation(song.file, song.frequency, 0);
 
-      offCanvas.width = canvas.width;
-      offCanvas.height = canvas.height;
-      offCtx = offCanvas.getContext("2d", { willReadFrequently: true })!;
+    let currentImage = stimulusImages[stimulusIndex];
+    let previousImage = currentImage;
+    let lastSwitch = performance.now();
+    let startTime = 0;
+    let city = stimulusFiles[stimulusIndex].startsWith("city_");
+    let clicked = false;
+    let spacePressCount = 0;
+    let rt: number | null = null;
+    const difficulty = fixedDifficulty;
+    let correctStreak = 0;
+    const difficultyBefore = difficulty;
+    let ended = false;
+    let frameId = 0;
+    let crossFadeFrameId = 0;
 
-      let currentImage = stimulusImages[stimulusIndex];
-      let currentData = imageDataFor(currentImage);
-      let previousData = currentData;
-      let lastSwitch = performance.now();
-      let startTime = 0;
-      let city = stimulusFiles[stimulusIndex].startsWith("city_");
-      let clicked = false;
-      let spacePressCount = 0;
-      let rt: number | null = null;
-      const difficulty = fixedDifficulty;
-      let correctStreak = 0;
-      const difficultyBefore = difficulty;
-      let ended = false;
-      let frameId = 0;
-      let crossFadeFrameId = 0;
+    ctx.drawImage(currentImage, 0, 0);
+    songPlayer.start();
 
-      ctx.drawImage(currentImage, 0, 0);
-      songPlayer.start();
+    function incorrect() {
+      correctStreak = 0;
+    }
 
-      function incorrect() {
+    function correct() {
+      if (correctStreak >= 3) {
         correctStreak = 0;
       }
+    }
 
-      function correct() {
-        if (correctStreak >= 3) {
-          correctStreak = 0;
-        }
+    function crossFade(currentTime: number, difficultyIndex: number) {
+      if (ended) return;
+
+      if (!startTime) startTime = currentTime;
+
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / 800, 1);
+      const [start, target] = difficulties[difficultyIndex];
+      const m = start + (target - start) * progress;
+
+      drawDissolve(previousImage, currentImage, m);
+
+      if (progress < 1) {
+        crossFadeFrameId = requestAnimationFrame((time) =>
+          crossFade(time, difficultyIndex),
+        );
       }
+    }
 
-      function crossFade(currentTime: number, difficultyIndex: number) {
-        if (ended) return;
-
-        if (!startTime) startTime = currentTime;
-
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / 800, 1);
-        const [start, target] = difficulties[difficultyIndex];
-        const m = start + (target - start) * progress;
-
-        ctx.putImageData(dissolve(previousData, currentData, m), 0, 0);
-
-        if (progress < 1) {
-          crossFadeFrameId = requestAnimationFrame((time) =>
-            crossFade(time, difficultyIndex),
-          );
-        }
-      }
-
-      function finish(reason: string | null) {
-        if (ended) return;
-        ended = true;
-        cancelAnimationFrame(frameId);
-        cancelAnimationFrame(crossFadeFrameId);
-        songPlayer.stop();
-        document.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("blur", onBlur);
-        document.removeEventListener("visibilitychange", onVisibilityChange);
-        document.removeEventListener("fullscreenchange", onFullscreenChange);
-        sessionCompletedUnmod = reason === null;
+    function finish(reason: string | null) {
+      if (ended) return;
+      ended = true;
+      cancelAnimationFrame(frameId);
+      cancelAnimationFrame(crossFadeFrameId);
+      songPlayer.stop();
+      document.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      sessionCompletedUnmod = reason === null;
+      if (reason !== null) {
+        jsPsych.endExperiment();
+      } else {
         jsPsych.finishTrial();
-        setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
+      setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
+    }
 
-      function saveData(now: number) {
-        jsPsych.data.write({
-          trial_type: "stimulus",
-          is_city: city,
-          stimulus: stimulusFiles[stimulusIndex],
-          response: clicked ? "space" : null,
-          rt,
-          correct: clicked === city,
-          difficulty_before: difficultyBefore,
-          difficulty_after: difficulty,
-          duration: now - lastSwitch,
-          gradcpt_run: songIndex + 1,
-          song_name: song.name,
-          modulation_depth: song.depth,
-          modulation_frequency: song.frequency,
-          flag_spamming: spacePressCount > 3,
-        });
-      }
+    function saveData(now: number) {
+      jsPsych.data.write({
+        trial_type: "stimulus",
+        is_city: city,
+        stimulus: stimulusFiles[stimulusIndex],
+        response: clicked ? "space" : null,
+        rt,
+        correct: clicked === city,
+        difficulty_before: difficultyBefore,
+        difficulty_after: difficulty,
+        duration: now - lastSwitch,
+        gradcpt_run: songIndex + 1,
+        song_name: song.name,
+        modulation_depth: song.depth,
+        modulation_frequency: song.frequency,
+        flag_spamming: spacePressCount > 3,
+      });
+    }
 
-      function onKeyDown(e: KeyboardEvent) {
-        if (e.code === "Escape") finish("escape pressed");
-        if (e.code === "Space" && !e.repeat) {
-          spacePressCount++;
-          if (!clicked) {
-            rt = performance.now() - lastSwitch;
-            if (city) {
-              correctStreak++;
-              correct();
-            } else {
-              incorrect();
-            }
-            clicked = true;
-          }
-        }
-      }
-
-      function onBlur() {
-        finish("focus lost");
-      }
-
-      function onVisibilityChange() {
-        if (document.hidden) finish("page hidden");
-      }
-
-      function onFullscreenChange() {
-        if (!document.fullscreenElement) finish("fullscreen exited");
-      }
-
-      document.addEventListener("keydown", onKeyDown);
-      window.addEventListener("blur", onBlur);
-      document.addEventListener("visibilitychange", onVisibilityChange);
-      document.addEventListener("fullscreenchange", onFullscreenChange);
-
-      function frame() {
-        if (ended) return;
-        const now = performance.now();
-
-        if (now - lastSwitch >= 800) {
-          if (!clicked && city) {
-            incorrect();
-          } else if (!clicked && !city) {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.code === "Escape") finish("escape pressed");
+      if (e.code === "Space" && !e.repeat) {
+        spacePressCount++;
+        if (!clicked) {
+          rt = performance.now() - lastSwitch;
+          if (city) {
             correctStreak++;
             correct();
+          } else {
+            incorrect();
           }
-          saveData(now);
-          if (stimulusIndex === stimulusFiles.length - 1) {
-            finish(null);
-            return;
-          }
-          previousData = currentData;
-          stimulusIndex++;
-          currentImage = stimulusImages[stimulusIndex];
-          currentData = imageDataFor(currentImage);
-          city = stimulusFiles[stimulusIndex].startsWith("city_");
-          lastSwitch += 800;
-          startTime = lastSwitch;
-          cancelAnimationFrame(crossFadeFrameId);
-          crossFade(now, difficulty);
-          clicked = false;
-          rt = null;
-          spacePressCount = 0;
+          clicked = true;
         }
-        frameId = requestAnimationFrame(frame);
       }
+    }
 
+    function onBlur() {
+      finish("focus lost");
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) finish("page hidden");
+    }
+
+    function onFullscreenChange() {
+      if (!document.fullscreenElement) finish("fullscreen exited");
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+
+    function frame() {
+      if (ended) return;
+      const now = performance.now();
+
+      if (now - lastSwitch >= 800) {
+        if (!clicked && city) {
+          incorrect();
+        } else if (!clicked && !city) {
+          correctStreak++;
+          correct();
+        }
+        saveData(now);
+        if (stimulusIndex === stimulusFiles.length - 1) {
+          finish(null);
+          return;
+        }
+        previousImage = currentImage;
+        stimulusIndex++;
+        currentImage = stimulusImages[stimulusIndex];
+        city = stimulusFiles[stimulusIndex].startsWith("city_");
+        lastSwitch += 800;
+        startTime = lastSwitch;
+        cancelAnimationFrame(crossFadeFrameId);
+        crossFade(now, difficulty);
+        clicked = false;
+        rt = null;
+        spacePressCount = 0;
+      }
       frameId = requestAnimationFrame(frame);
+    }
+
+    frameId = requestAnimationFrame(frame);
   })();
 }
 

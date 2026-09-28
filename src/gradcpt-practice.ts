@@ -24,7 +24,8 @@ function runGradCpt(
   sessionCompletedPractice = false;
   displayElement.innerHTML = `
     <div id="start-screen">
-      <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward. Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</p>
+      <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward.</p>
+      <p><strong>Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</strong></p>
       <p>If you are directed back to this screen again, it means that you scored less than a 95%, and you are given more practice time.</p>
       <button id="continue" class="primary" type="button">Continue</button>
     </div>
@@ -36,22 +37,19 @@ function runGradCpt(
 
   const canvas = displayElement.querySelector<HTMLCanvasElement>("canvas")!;
   const ctx = canvas.getContext("2d")!;
-  const offCanvas = document.createElement("canvas");
   const rtimeDiv = document.querySelector("#rtime")!;
-  let offCtx: CanvasRenderingContext2D;
 
-  function imageDataFor(img: HTMLImageElement): ImageData {
-    offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-    offCtx.drawImage(img, 0, 0);
-    return offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
-  }
-
-  function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
-    const out = new ImageData(a.width, a.height);
-    for (let i = 0; i < out.data.length; i++) {
-      out.data[i] = a.data[i] + (b.data[i] - a.data[i]) * m;
-    }
-    return out;
+  function drawDissolve(
+    a: HTMLImageElement,
+    b: HTMLImageElement,
+    m: number,
+  ): void {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(a, 0, 0);
+    ctx.globalAlpha = m;
+    ctx.drawImage(b, 0, 0);
+    ctx.globalAlpha = 1;
   }
 
   const startScreen =
@@ -65,14 +63,13 @@ function runGradCpt(
       const isSafari =
         /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
         !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
-      if (!isSafari) {
+      if (isSafari) {
+        alert("Safari is not supported. Switch to another browser instead.");
+        jsPsych.endExperiment();
+      } else {
         if (!document.fullscreenElement) {
           await document.documentElement.requestFullscreen();
         }
-      } else {
-        alert(
-          "Fullscreen is not yet supported on Safari",
-        );
       }
       startScreen.style.display = "none";
       appDiv.style.display = "";
@@ -88,13 +85,8 @@ function runGradCpt(
       );
       let stimulusIndex = 0;
 
-      offCanvas.width = canvas.width;
-      offCanvas.height = canvas.height;
-      offCtx = offCanvas.getContext("2d", { willReadFrequently: true })!;
-
       let currentImage = stimulusImages[stimulusIndex];
-      let currentData = imageDataFor(currentImage);
-      let previousData = currentData;
+      let previousImage = currentImage;
       let lastSwitch = performance.now();
       let startTime = 0;
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
@@ -113,7 +105,7 @@ function runGradCpt(
 
       function incorrect() {
         correctStreak = 0;
-        rtimeDiv.textContent = `INCORRECT! Did not click.`;
+        rtimeDiv.textContent = `INCORRECT!`;
       }
 
       function correct() {
@@ -130,7 +122,7 @@ function runGradCpt(
         const [start, target] = difficulties[difficultyIndex];
         const m = start + (target - start) * progress;
 
-        ctx.putImageData(dissolve(previousData, currentData, m), 0, 0);
+        drawDissolve(previousImage, currentImage, m);
 
         if (progress < 1) {
           crossFadeFrameId = requestAnimationFrame((time) =>
@@ -157,7 +149,11 @@ function runGradCpt(
         }
         let ratio: number = numCorrect / lastTwentyTrials.length;
         redo = ratio < 0.9;
-        jsPsych.finishTrial();
+        if (reason !== null) {
+          jsPsych.endExperiment();
+        } else {
+          jsPsych.finishTrial();
+        }
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
 
@@ -230,10 +226,9 @@ function runGradCpt(
             finish(null);
             return;
           }
-          previousData = currentData;
+          previousImage = currentImage;
           stimulusIndex++;
           currentImage = stimulusImages[stimulusIndex];
-          currentData = imageDataFor(currentImage);
           city = stimulusFiles[stimulusIndex].startsWith("city_");
           lastSwitch += 1500;
           startTime = lastSwitch;

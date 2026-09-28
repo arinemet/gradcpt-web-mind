@@ -25,7 +25,9 @@ function runGradCpt(
   calibratedDifficulty = null;
   displayElement.innerHTML = `
     <div id="start-screen">
-      <p>In this section, you will perform the full attention task. This version of the task will be faster paced than the practice. We will also alter the difficulty of the task as you go by making each scene image fade into the next. Please respond (SPACEBAR or NO SPACEBAR) to the image that the screen is fading <em>into</em>.</p>
+      <p>In this section, you will perform the full attention task. This version of the task will be faster paced than the practice.</p>
+      <p>We will also alter the difficulty of the task as you go by making each scene image fade into the next.</p>
+      <p><strong>Please respond (SPACEBAR or NO SPACEBAR) to the image that the screen is fading <em>into</em>.</strong></p>
       <button id="continue" class="primary" type="button">Continue</button>
     </div>
     <div id="app" style="display:none">
@@ -35,21 +37,18 @@ function runGradCpt(
 
   const canvas = displayElement.querySelector<HTMLCanvasElement>("canvas")!;
   const ctx = canvas.getContext("2d")!;
-  const offCanvas = document.createElement("canvas");
-  let offCtx: CanvasRenderingContext2D;
 
-  function imageDataFor(img: HTMLImageElement): ImageData {
-    offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-    offCtx.drawImage(img, 0, 0);
-    return offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
-  }
-
-  function dissolve(a: ImageData, b: ImageData, m: number): ImageData {
-    const out = new ImageData(a.width, a.height);
-    for (let i = 0; i < out.data.length; i++) {
-      out.data[i] = a.data[i] + (b.data[i] - a.data[i]) * m;
-    }
-    return out;
+  function drawDissolve(
+    a: HTMLImageElement,
+    b: HTMLImageElement,
+    m: number,
+  ): void {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(a, 0, 0);
+    ctx.globalAlpha = m;
+    ctx.drawImage(b, 0, 0);
+    ctx.globalAlpha = 1;
   }
 
   const startScreen =
@@ -65,6 +64,7 @@ function runGradCpt(
         !("maxTouchPoints" in navigator && navigator.maxTouchPoints > 1);
       if (isSafari) {
         alert("Safari is not supported. Switch to another browser instead.");
+        jsPsych.endExperiment();
       } else {
         if (!document.fullscreenElement) {
           await document.documentElement.requestFullscreen();
@@ -84,13 +84,8 @@ function runGradCpt(
       );
       let stimulusIndex = 0;
 
-      offCanvas.width = canvas.width;
-      offCanvas.height = canvas.height;
-      offCtx = offCanvas.getContext("2d", { willReadFrequently: true })!;
-
       let currentImage = stimulusImages[stimulusIndex];
-      let currentData = imageDataFor(currentImage);
-      let previousData = currentData;
+      let previousImage = currentImage;
       let lastSwitch = performance.now();
       let startTime = 0;
       let city = stimulusFiles[stimulusIndex].startsWith("city_");
@@ -137,23 +132,32 @@ function runGradCpt(
         }
       }
 
+      let nextCrossFadeFrame = 0;
+
       function crossFade(currentTime: number, difficultyIndex: number) {
         if (ended) return;
 
-        if (!startTime) startTime = currentTime;
-
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / 800, 1);
-        const [start, target] = difficulties[difficultyIndex];
-        const m = start + (target - start) * progress;
-
-        ctx.putImageData(dissolve(previousData, currentData, m), 0, 0);
-
-        if (progress < 1) {
-          crossFadeFrameId = requestAnimationFrame((time) =>
-            crossFade(time, difficultyIndex),
-          );
+        if (!startTime) {
+          startTime = currentTime;
+          nextCrossFadeFrame = currentTime;
         }
+
+        if (currentTime >= nextCrossFadeFrame) {
+          nextCrossFadeFrame += 1000 / 30;
+
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / 800, 1);
+          const [start, target] = difficulties[difficultyIndex];
+          const m = start + (target - start) * progress;
+
+          drawDissolve(previousImage, currentImage, m);
+
+          if (progress >= 1) return;
+        }
+
+        crossFadeFrameId = requestAnimationFrame((time) =>
+          crossFade(time, difficultyIndex),
+        );
       }
 
       function calculateAverage(a: number[]) {
@@ -178,10 +182,14 @@ function runGradCpt(
         calibratedDifficulty = sessionCompletedCalibration
           ? Math.round(calculateAverage(lastSixTurnarounds))
           : null;
-        jsPsych.finishTrial({
-          calibrated_difficulty: calibratedDifficulty,
-          turnarounds,
-        });
+        if (reason !== null) {
+          jsPsych.endExperiment();
+        } else {
+          jsPsych.finishTrial({
+            calibrated_difficulty: calibratedDifficulty,
+            turnarounds,
+          });
+        }
         setTimeout(() => console.log(jsPsych.data.get().csv()), 0);
       }
 
@@ -255,10 +263,9 @@ function runGradCpt(
             finish(null);
             return;
           }
-          previousData = currentData;
+          previousImage = currentImage;
           stimulusIndex++;
           currentImage = stimulusImages[stimulusIndex];
-          currentData = imageDataFor(currentImage);
           city = stimulusFiles[stimulusIndex].startsWith("city_");
           lastSwitch += 800;
           startTime = lastSwitch;

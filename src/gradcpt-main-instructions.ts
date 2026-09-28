@@ -13,7 +13,7 @@ export class GradCptMainInstructionsPlugin {
   }
 
   trial(displayElement: HTMLElement) {
-    displayElement.innerHTML = `<div class="gradcpt-main-instructions"><p>Now, we will begin the main experiment. There will be a total of 8 blocks, each lasting 3 minutes, so this portion of the experiment will take around 25 minutes. You will perform the visual attention task while listening to the music you selected. The instructions are the same: press SPACEBAR after you see a city scene and do <em>NOT</em> press SPACEBAR after you see a mountain scene. Please use only your dominant hand throughout the experiment.</p><p>This study requires fullscreen.</p><button id="continue" class="primary" type="button">Continue</button></div>`;
+    displayElement.innerHTML = `<div class="gradcpt-main-instructions"><p>Now, we will begin the main experiment. There will be a total of 8 blocks, each lasting 3 minutes, so this portion of the experiment will take around 25 minutes.</p><p>You will perform the visual attention task while listening to the music you selected.</p><p><strong>The instructions are the same: press SPACEBAR after you see a city scene and do <em>NOT</em> press SPACEBAR after you see a mountain scene.</strong></p><p>Please use only your dominant hand throughout the experiment.</p><p>This study requires fullscreen.</p><button id="continue" class="primary" type="button">Continue</button></div>`;
 
     setTimeout(() => {
       const continueButton =
