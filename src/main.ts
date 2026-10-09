@@ -325,7 +325,7 @@ async function main() {
     timeline: [
       {
         type: GradCptPracticePlugin,
-        stimulusFiles: stimulusFileSets[0],
+        stimulusFiles: stimulusFileSets[0].slice(0, 40),
         songIndex: 0,
       },
     ],
@@ -345,11 +345,6 @@ async function main() {
   let group2: string[] = [...stimulusFileSets[0]].sort(
     () => Math.random() - 0.5,
   );
-  let passedCalibratedDifficulty: number = 0;
-  if (calibratedDifficulty !== null) {
-    passedCalibratedDifficulty = calibratedDifficulty;
-  }
-
   while (group1[group1.length - 1] === group2[0]) {
     group2 = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
   }
@@ -380,13 +375,13 @@ async function main() {
   };
 
   if (unmodFirst) {
-    for (let i = 0; i < unmodFileSet.length; i++) {
+    for (let i = 0; i < songOrder.length; i++) {
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: unmodFileSet,
-        songIndex: i,
-        difficulty: () => passedCalibratedDifficulty,
+        songIndex: songOrder[i],
+        difficulty: () => calibratedDifficulty ?? 0,
       });
     }
     for (let i = 0; i < songOrder.length; i++) {
@@ -395,7 +390,7 @@ async function main() {
         type: GradCptModPlugin,
         stimulusFiles: modFileSet,
         songIndex: songOrder[i],
-        difficulty: () => passedCalibratedDifficulty,
+        difficulty: () => calibratedDifficulty ?? 0,
       });
     }
   } else {
@@ -405,16 +400,16 @@ async function main() {
         type: GradCptModPlugin,
         stimulusFiles: modFileSet,
         songIndex: songOrder[i],
-        difficulty: () => passedCalibratedDifficulty,
+        difficulty: () => calibratedDifficulty ?? 0,
       });
     }
-    for (let i = 0; i < unmodFileSet.length; i++) {
+    for (let i = 0; i < songOrder.length; i++) {
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: unmodFileSet,
-        songIndex: i,
-        difficulty: () => passedCalibratedDifficulty,
+        songIndex: songOrder[i],
+        difficulty: () => calibratedDifficulty ?? 0,
       });
     }
   }

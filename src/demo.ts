@@ -332,25 +332,20 @@ If you want a copy of this consent for your records, you can print it from the s
     songIndex: 0,
   };
 
-  let passedCalibratedDifficulty: number = 0;
-  if (calibratedDifficulty !== null) {
-    passedCalibratedDifficulty = calibratedDifficulty;
-  }
-
   const gradCptMainInstructionsTrial = { type: GradCptMainInstructionsPlugin };
 
   const gradCptModTrial = {
     type: GradCptModPlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
-    difficulty: () => passedCalibratedDifficulty,
+    difficulty: () => calibratedDifficulty ?? 0,
   };
 
   const gradCptUnmodTrial = {
     type: GradCptUnmodPlugin,
     stimulusFiles: stimulusFileSets[0],
     songIndex: 0,
-    difficulty: () => passedCalibratedDifficulty,
+    difficulty: () => calibratedDifficulty ?? 0,
   };
 
   const gradCptBreakTrial = { type: GradCptBreakPlugin };
