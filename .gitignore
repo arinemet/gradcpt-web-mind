@@ -32,3 +32,4 @@ gradcpt-web-mind.maxpat
 *.wav
 .omc/
 .aider*
+*.csv
