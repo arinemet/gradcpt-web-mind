@@ -180,7 +180,9 @@ function runGradCpt(
         document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedCalibration = reason === null;
         calibratedDifficulty = sessionCompletedCalibration
-          ? Math.round(calculateAverage(lastSixTurnarounds))
+          ? lastSixTurnarounds.length > 0
+            ? Math.round(calculateAverage(lastSixTurnarounds))
+            : difficulty
           : null;
         if (reason !== null) {
           jsPsych.endExperiment();
@@ -195,7 +197,7 @@ function runGradCpt(
 
       function saveData(now: number) {
         jsPsych.data.write({
-          trial_type: "stimulus",
+          section: "calibration",
           is_city: city,
           stimulus: stimulusFiles[stimulusIndex],
           response: clicked ? "space" : null,
