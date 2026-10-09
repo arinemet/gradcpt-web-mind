@@ -61,7 +61,16 @@ blockMobileUsers();
 
 async function main() {
   const BASE = import.meta.env.BASE_URL;
-  const orderFiles = ["song5.txt", "song6.txt", "song7.txt", "song8.txt"];
+  const orderFiles = [
+    "song1.txt",
+    "song2.txt",
+    "song3.txt",
+    "song4.txt",
+    "song5.txt",
+    "song6.txt",
+    "song7.txt",
+    "song8.txt",
+  ];
   const stimulusFileSets: string[][] = [];
 
   for (const orderFile of orderFiles) {
@@ -339,32 +348,26 @@ async function main() {
   });
 
   const unmodFirst: boolean = Math.random() >= 0.5;
-  const group1: string[] = [...stimulusFileSets[0]].sort(
-    () => Math.random() - 0.5,
-  );
-  let group2: string[] = [...stimulusFileSets[0]].sort(
-    () => Math.random() - 0.5,
-  );
-  while (group1[group1.length - 1] === group2[0]) {
-    group2 = [...stimulusFileSets[0]].sort(() => Math.random() - 0.5);
-  }
-
-  let unmodFileSet;
-  let modFileSet;
-
-  if (unmodFirst) {
-    unmodFileSet = group1;
-    modFileSet = group2;
-  } else {
-    unmodFileSet = group2;
-    modFileSet = group1;
-  }
 
   timeline.push({ type: GradCptMainInstructionsPlugin });
 
-  const songOrder: number[] = modulationSettings
-    .map((_, i) => i)
-    .sort(() => Math.random() - 0.5);
+  const songIndexes: number[] = modulationSettings.map((_, i) => i);
+  const group1: number[] = [...songIndexes].sort(() => Math.random() - 0.5);
+  let group2: number[] = [...songIndexes].sort(() => Math.random() - 0.5);
+  while (group1[group1.length - 1] === group2[0]) {
+    group2 = [...songIndexes].sort(() => Math.random() - 0.5);
+  }
+
+  let unmodSongOrder;
+  let modSongOrder;
+
+  if (unmodFirst) {
+    unmodSongOrder = group1;
+    modSongOrder = group2;
+  } else {
+    unmodSongOrder = group2;
+    modSongOrder = group1;
+  }
 
   let isFirstBlock = true;
   const pushBreak = () => {
@@ -375,40 +378,40 @@ async function main() {
   };
 
   if (unmodFirst) {
-    for (let i = 0; i < songOrder.length; i++) {
+    for (let i = 0; i < 4; i++) {
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
-        stimulusFiles: unmodFileSet,
-        songIndex: songOrder[i],
+        stimulusFiles: stimulusFileSets[i],
+        songIndex: unmodSongOrder[i],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
-    for (let i = 0; i < songOrder.length; i++) {
+    for (let i = 0; i < 4; i++) {
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
-        stimulusFiles: modFileSet,
-        songIndex: songOrder[i],
+        stimulusFiles: stimulusFileSets[i + 4],
+        songIndex: modSongOrder[i],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
   } else {
-    for (let i = 0; i < songOrder.length; i++) {
+    for (let i = 0; i < 4; i++) {
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
-        stimulusFiles: modFileSet,
-        songIndex: songOrder[i],
+        stimulusFiles: stimulusFileSets[i],
+        songIndex: modSongOrder[i],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
-    for (let i = 0; i < songOrder.length; i++) {
+    for (let i = 0; i < 4; i++) {
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
-        stimulusFiles: unmodFileSet,
-        songIndex: songOrder[i],
+        stimulusFiles: stimulusFileSets[i + 4],
+        songIndex: unmodSongOrder[i],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
