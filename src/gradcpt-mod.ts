@@ -140,7 +140,7 @@ function runGradCpt(
 
     function saveData(now: number) {
       jsPsych.data.write({
-        trial_type: "stimulus",
+        section: "mod",
         is_city: city,
         stimulus: stimulusFiles[stimulusIndex],
         response: clicked ? "space" : null,
@@ -211,7 +211,7 @@ function runGradCpt(
         stimulusIndex++;
         currentImage = stimulusImages[stimulusIndex];
         city = stimulusFiles[stimulusIndex].startsWith("city_");
-        lastSwitch = now;
+        lastSwitch += 800;
         startTime = lastSwitch;
         cancelAnimationFrame(crossFadeFrameId);
         crossFade(now, difficulty);
