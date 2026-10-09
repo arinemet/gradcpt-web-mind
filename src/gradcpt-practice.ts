@@ -24,9 +24,9 @@ function runGradCpt(
   sessionCompletedPractice = false;
   displayElement.innerHTML = `
     <div id="start-screen">
-      <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 95% accuracy on the practice, you will be able to move forward.</p>
+      <p>This first section is practice for the visual attention task. You will receive feedback after every spacebar press for whether your response was correct or incorrect. Once you achieve 90% accuracy on the practice, you will be able to move forward.</p>
       <p><strong>Remember, the instructions are to press SPACEBAR after you see a city scene and to <em>NOT</em> press SPACEBAR after you see a mountain scene.</strong></p>
-      <p>If you are directed back to this screen again, it means that you scored less than a 95%, and you are given more practice time.</p>
+      <p>If you are directed back to this screen again, it means that you scored less than a 90%, and you are given more practice time.</p>
       <button id="continue" class="primary" type="button">Continue</button>
     </div>
     <div id="app" style="display:none">
@@ -159,7 +159,7 @@ function runGradCpt(
 
       function saveData(now: number) {
         jsPsych.data.write({
-          trial_type: "stimulus",
+          section: "practice",
           is_city: city,
           stimulus: stimulusFiles[stimulusIndex],
           response: clicked ? "space" : null,
@@ -222,6 +222,11 @@ function runGradCpt(
             correct();
           }
           saveData(now);
+          lastTwentyTrials.push(clicked === city);
+          if (lastTwentyTrials.length > 20) {
+            // pop first element, oldest element
+            lastTwentyTrials.shift();
+          }
           if (stimulusIndex === stimulusFiles.length - 1) {
             finish(null);
             return;
@@ -238,11 +243,6 @@ function runGradCpt(
           rt = null;
           spacePressCount = 0;
           difficultyBefore = difficulty;
-          lastTwentyTrials.push(clicked && city);
-          if (lastTwentyTrials.length > 20) {
-            // pop first element, oldest element
-            lastTwentyTrials.shift();
-          }
         }
         frameId = requestAnimationFrame(frame);
       }
