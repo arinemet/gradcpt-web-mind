@@ -41,7 +41,7 @@ export class ModulationControllerPlugin {
     displayElement.innerHTML = `
       <div class="audio-setup">
         <h2>Modulation depth setter</h2>
-        <p>Click <b>New song</b> to start playing the next song. While it plays, press <b>1</b> to increase the amplitude modulation and <b>2</b> to decrease it. Use the <b>highest amount of modulation that would still be tolerable</b> as background music while you work.<br>Once you're happy with the setting, click <b>Save</b>, then click <b>New song</b> to move on to the next one.</p>
+        <p>Click <b>New song</b> to start playing the next song. While it plays, press <b>1</b> to decrease the amplitude modulation and <b>2</b> to increase it. Use the <b>highest amount of modulation that would still be tolerable</b> as background music while you work.<br>Once you're happy with the setting, click <b>Save</b>, then click <b>New song</b> to move on to the next one.</p>
 
         <div class="audio-control">
           <span id="song-status">No song playing yet.</span>
@@ -120,6 +120,7 @@ export class ModulationControllerPlugin {
       stopPreview();
       currentIndex += 1;
       if (currentIndex >= settings.length) {
+        document.removeEventListener("keydown", onKeyDown);
         modulationSettings = settings;
         this.jsPsych.finishTrial({ modulation_settings: modulationSettings });
         return;
@@ -138,14 +139,13 @@ export class ModulationControllerPlugin {
       saveButton.disabled = true;
     });
 
-    displayElement.addEventListener("keydown", (event) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "1") {
-        void changeDepth(DEPTH_STEP);
-      } else if (event.key === "2") {
         void changeDepth(-DEPTH_STEP);
+      } else if (event.key === "2") {
+        void changeDepth(DEPTH_STEP);
       }
-    });
-    displayElement.tabIndex = -1;
-    displayElement.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
   }
 }
