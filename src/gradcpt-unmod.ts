@@ -136,7 +136,7 @@ function runGradCpt(
 
     function saveData(now: number) {
       jsPsych.data.write({
-        trial_type: "stimulus",
+        section: "unmod",
         is_city: city,
         stimulus: stimulusFiles[stimulusIndex],
         response: clicked ? "space" : null,
