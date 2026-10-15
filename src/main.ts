@@ -119,6 +119,7 @@ async function main() {
     preamble: `
       <div class="consent-box">
       <h2>Consent</h2>
+      yo lol this is funny my man
       Welcome! We are inviting you to take part in a research study. This consent form will tell you about the study. If you want a copy of this consent form for your records, you can print it from the screen. Please carefully read the following information.
   Key information about this research study: The following is a short summary of this study to help you decide whether to be a part of this study. This study is about how musical training affects the brain. You will be asked to complete surveys and to do computerized tasks. We expect that you the entire research study will take between 45 - 60 minutes. Your participation in this study does not involve any risk to you beyond that of everyday life. If you feel uncomfortable with any aspect of the study, you may discontinue at any time. All responses are completely anonymous. Your real-life face, body, and voice will NOT be recorded. Only aggregated results will be published. There will be no direct benefit to you other than contributing to scientific research and financial compensation for participating.
   Why am I being asked to take part in this research study? We are asking you to be in this study either because you are undergoing musical training, or because you have no formal musical training and are a control subject for our study. You should be between the ages of 18 and 65 years old and normal hearing.

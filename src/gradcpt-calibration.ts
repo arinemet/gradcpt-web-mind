@@ -28,6 +28,7 @@ function runGradCpt(
       <p>In this section, you will perform the full attention task. This version of the task will be faster paced than the practice.</p>
       <p>We will also alter the difficulty of the task as you go by making each scene image fade into the next.</p>
       <p><strong>Please respond (SPACEBAR or NO SPACEBAR) to the image that the screen is fading <em>into</em>.</strong></p>
+      <p><strong>Remember, press SPACEBAR when you see a picture of a city scene, and do <em>NOT</em> press SPACEBAR when you see a picture of a mountain scene.</strong></p>
       <button id="continue" class="primary" type="button">Continue</button>
     </div>
     <div id="app" style="display:none">
@@ -177,7 +178,6 @@ function runGradCpt(
         document.removeEventListener("keydown", onKeyDown);
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
-        document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedCalibration = reason === null;
         calibratedDifficulty = sessionCompletedCalibration
           ? lastSixTurnarounds.length > 0
@@ -239,15 +239,9 @@ function runGradCpt(
       function onVisibilityChange() {
         if (document.hidden) finish("page hidden");
       }
-
-      function onFullscreenChange() {
-        if (!document.fullscreenElement) finish("fullscreen exited");
-      }
-
       document.addEventListener("keydown", onKeyDown);
       window.addEventListener("blur", onBlur);
       document.addEventListener("visibilitychange", onVisibilityChange);
-      document.addEventListener("fullscreenchange", onFullscreenChange);
 
       function frame() {
         if (ended) return;

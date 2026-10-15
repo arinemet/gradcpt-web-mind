@@ -124,7 +124,6 @@ function runGradCpt(
       document.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("blur", onBlur);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
       sessionCompletedUnmod = reason === null;
       if (reason !== null) {
         jsPsych.endExperiment();
@@ -177,15 +176,9 @@ function runGradCpt(
     function onVisibilityChange() {
       if (document.hidden) finish("page hidden");
     }
-
-    function onFullscreenChange() {
-      if (!document.fullscreenElement) finish("fullscreen exited");
-    }
-
     document.addEventListener("keydown", onKeyDown);
     window.addEventListener("blur", onBlur);
     document.addEventListener("visibilitychange", onVisibilityChange);
-    document.addEventListener("fullscreenchange", onFullscreenChange);
 
     function frame() {
       if (ended) return;

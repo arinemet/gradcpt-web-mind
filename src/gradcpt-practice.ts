@@ -139,7 +139,6 @@ function runGradCpt(
         document.removeEventListener("keydown", onKeyDown);
         window.removeEventListener("blur", onBlur);
         document.removeEventListener("visibilitychange", onVisibilityChange);
-        document.removeEventListener("fullscreenchange", onFullscreenChange);
         sessionCompletedPractice = reason === null;
         let numCorrect: number = 0;
         for (const e of lastTwentyTrials) {
@@ -200,15 +199,9 @@ function runGradCpt(
       function onVisibilityChange() {
         if (document.hidden) finish("page hidden");
       }
-
-      function onFullscreenChange() {
-        if (!document.fullscreenElement) finish("fullscreen exited");
-      }
-
       document.addEventListener("keydown", onKeyDown);
       window.addEventListener("blur", onBlur);
       document.addEventListener("visibilitychange", onVisibilityChange);
-      document.addEventListener("fullscreenchange", onFullscreenChange);
 
       function frame() {
         if (ended) return;

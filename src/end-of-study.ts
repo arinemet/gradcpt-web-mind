@@ -2,7 +2,7 @@ import { ParameterType } from "jspsych";
 import type { JsPsych } from "jspsych";
 
 export const sessionCompleteHtml = `<h1>Session complete.</h1><p>Thank you for participating.</p>`;
-export const studyFailedHtml = `<h1>Study failed.</h1><p>You lost focus, exited fullscreen, or otherwise interrupted the task. Thank you for participating.</p>`;
+export const studyFailedHtml = `<h1>Study failed.</h1><p>You lost focus or otherwise interrupted the task. Thank you for participating.</p>`;
 
 export class EndOfStudyPreviewPlugin {
   static info = {
