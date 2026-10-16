@@ -385,7 +385,7 @@ async function main() {
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: stimulusFileSets[i],
-        songIndex: unmodSongOrder[i],
+        songIndex: unmodSongOrder[i - 2],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
@@ -394,7 +394,7 @@ async function main() {
       timeline.push({
         type: GradCptModPlugin,
         stimulusFiles: stimulusFileSets[i + 4],
-        songIndex: modSongOrder[i],
+        songIndex: modSongOrder[i - 2],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
@@ -404,7 +404,7 @@ async function main() {
       timeline.push({
         type: GradCptModPlugin,
         stimulusFiles: stimulusFileSets[i],
-        songIndex: modSongOrder[i],
+        songIndex: modSongOrder[i - 2],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
@@ -413,7 +413,7 @@ async function main() {
       timeline.push({
         type: GradCptUnmodPlugin,
         stimulusFiles: stimulusFileSets[i + 4],
-        songIndex: unmodSongOrder[i],
+        songIndex: unmodSongOrder[i - 2],
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
