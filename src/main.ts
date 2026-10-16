@@ -381,7 +381,6 @@ async function main() {
 
   if (unmodFirst) {
     for (let i = 2; i < 6; i++) {
-      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
@@ -391,7 +390,6 @@ async function main() {
       });
     }
     for (let i = 2; i < 6; i++) {
-      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
@@ -402,7 +400,6 @@ async function main() {
     }
   } else {
     for (let i = 2; i < 6; i++) {
-      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
@@ -412,7 +409,6 @@ async function main() {
       });
     }
     for (let i = 2; i < 6; i++) {
-      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
