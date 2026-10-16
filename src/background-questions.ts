@@ -233,13 +233,21 @@ function sliderQuestion(
 
 const PAGES: string[] = [
   `
-    ${textQuestion("Q1.02.name", "Your name:")}
-    ${radioQuestion("Q1.03.gender", "Your gender identity:", [
-      "Male",
-      "Female",
-      "Non-binary / third gender",
-      "Prefer not to say",
-    ])}
+  ${textQuestion("Q1.02.name", "Your name:")}
+  ${radioWithTextEntryQuestion(
+    "Q1.25.prolific",
+    "Are you coming from Prolific?",
+    [
+      { label: "Yes, enter your participant ID", textEntry: true },
+      { label: "No, enter your Northeastern email", textEntry: true },
+    ],
+  )}
+  ${radioQuestion("Q1.03.gender", "Your gender identity:", [
+    "Male",
+    "Female",
+    "Non-binary / third gender",
+    "Prefer not to say",
+  ])}
     ${textQuestion("Q1.04.age", "Your age:")}
     ${textQuestion("Q1.05.occupation", "Your occupation:")}
     ${radioQuestion(
@@ -477,10 +485,42 @@ const PAGES: string[] = [
       "Q5.BMLH",
       "When you listen to music while performing your MORE cognitive activities, do you prefer the music to be:",
       [
-        { label: "Feeling", choices: ["Does not apply", "Relaxing", "Stimulating", "No Preference"] },
-        { label: "Lyrics", choices: ["Does not apply", "Without Lyrics", "With Lyrics", "No Preference"] },
-        { label: "Familiarity", choices: ["Does not apply", "Familiar", "Unfamiliar", "No Preference"] },
-        { label: "Choice", choices: ["Does not apply", "Chosen by you", "The choice of music does not matter", "No preference"] },
+        {
+          label: "Feeling",
+          choices: [
+            "Does not apply",
+            "Relaxing",
+            "Stimulating",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Lyrics",
+          choices: [
+            "Does not apply",
+            "Without Lyrics",
+            "With Lyrics",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Familiarity",
+          choices: [
+            "Does not apply",
+            "Familiar",
+            "Unfamiliar",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Choice",
+          choices: [
+            "Does not apply",
+            "Chosen by you",
+            "The choice of music does not matter",
+            "No preference",
+          ],
+        },
       ],
     )}
     ${sliderQuestion(
@@ -500,10 +540,42 @@ const PAGES: string[] = [
       "Q8.BMLH",
       "When you listen to music while performing your LESS cognitive activities, do you prefer the music to be:",
       [
-        { label: "Feeling", choices: ["Does not apply", "Relaxing", "Stimulating", "No Preference"] },
-        { label: "Lyrics", choices: ["Does not apply", "Without Lyrics", "With Lyrics", "No Preference"] },
-        { label: "Familiarity", choices: ["Does not apply", "Familiar", "Unfamiliar", "No Preference"] },
-        { label: "Choice", choices: ["Does not apply", "Chosen by you", "The choice of music does not matter", "No preference"] },
+        {
+          label: "Feeling",
+          choices: [
+            "Does not apply",
+            "Relaxing",
+            "Stimulating",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Lyrics",
+          choices: [
+            "Does not apply",
+            "Without Lyrics",
+            "With Lyrics",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Familiarity",
+          choices: [
+            "Does not apply",
+            "Familiar",
+            "Unfamiliar",
+            "No Preference",
+          ],
+        },
+        {
+          label: "Choice",
+          choices: [
+            "Does not apply",
+            "Chosen by you",
+            "The choice of music does not matter",
+            "No preference",
+          ],
+        },
       ],
     )}
   `,
@@ -551,7 +623,11 @@ function detectStraightlining(pageResponses: Record<string, unknown>): {
   const nonNumericAnswers: string[] = [];
   for (const field of NUMERIC_TEXT_FIELDS) {
     const value = pageResponses[field];
-    if (typeof value === "string" && value.trim() !== "" && !/^\d+$/.test(value.trim())) {
+    if (
+      typeof value === "string" &&
+      value.trim() !== "" &&
+      !/^\d+$/.test(value.trim())
+    ) {
       nonNumericAnswers.push(field);
     }
   }
@@ -592,12 +668,14 @@ export class BackgroundQuestionsPlugin {
 
     const form = displayElement.querySelector<HTMLFormElement>("#bq-form")!;
 
-    form.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input) => {
-      const output = input.nextElementSibling as HTMLOutputElement;
-      input.addEventListener("input", () => {
-        output.textContent = input.value;
+    form
+      .querySelectorAll<HTMLInputElement>('input[type="range"]')
+      .forEach((input) => {
+        const output = input.nextElementSibling as HTMLOutputElement;
+        input.addEventListener("input", () => {
+          output.textContent = input.value;
+        });
       });
-    });
 
     for (const textEntry of form.querySelectorAll<HTMLInputElement>(
       ".bq-text-entry",
@@ -641,8 +719,10 @@ export class BackgroundQuestionsPlugin {
 
       const durationMs = performance.now() - this.pageStartTime;
       const questionCount = countQuestions(PAGES[this.pageIndex]);
-      const msPerQuestion = questionCount > 0 ? durationMs / questionCount : durationMs;
-      const { straightlined, nonNumericAnswers } = detectStraightlining(pageResponses);
+      const msPerQuestion =
+        questionCount > 0 ? durationMs / questionCount : durationMs;
+      const { straightlined, nonNumericAnswers } =
+        detectStraightlining(pageResponses);
       const tooFast = msPerQuestion < MIN_MS_PER_QUESTION;
 
       this.jsPsych.data.write({
