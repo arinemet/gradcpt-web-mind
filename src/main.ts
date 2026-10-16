@@ -62,6 +62,8 @@ blockMobileUsers();
 async function main() {
   const BASE = import.meta.env.BASE_URL;
   const orderFiles = [
+    "calibration_practice.txt",
+    "calibration.txt",
     "song1.txt",
     "song2.txt",
     "song3.txt",
@@ -343,7 +345,7 @@ async function main() {
 
   timeline.push({
     type: GradCptCalibrationPlugin,
-    stimulusFiles: stimulusFileSets[0],
+    stimulusFiles: stimulusFileSets[1],
     songIndex: 0,
   });
 
@@ -378,7 +380,8 @@ async function main() {
   };
 
   if (unmodFirst) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 2; i < 6; i++) {
+      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,
@@ -387,7 +390,8 @@ async function main() {
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
-    for (let i = 0; i < 4; i++) {
+    for (let i = 2; i < 6; i++) {
+      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
@@ -397,7 +401,8 @@ async function main() {
       });
     }
   } else {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 2; i < 6; i++) {
+      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptModPlugin,
@@ -406,7 +411,8 @@ async function main() {
         difficulty: () => calibratedDifficulty ?? 0,
       });
     }
-    for (let i = 0; i < 4; i++) {
+    for (let i = 2; i < 6; i++) {
+      console.log("stimulusFiles: ", orderFiles[i]);
       pushBreak();
       timeline.push({
         type: GradCptUnmodPlugin,

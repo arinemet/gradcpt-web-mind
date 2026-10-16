@@ -122,8 +122,6 @@ function runGradCpt(
       cancelAnimationFrame(crossFadeFrameId);
       songPlayer.stop();
       document.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("blur", onBlur);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
       sessionCompletedUnmod = reason === null;
       if (reason !== null) {
         jsPsych.endExperiment();
@@ -153,7 +151,6 @@ function runGradCpt(
     }
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.code === "Escape") finish("escape pressed");
       if (e.code === "Space" && !e.repeat) {
         spacePressCount++;
         if (!clicked) {
@@ -169,16 +166,7 @@ function runGradCpt(
       }
     }
 
-    function onBlur() {
-      finish("focus lost");
-    }
-
-    function onVisibilityChange() {
-      if (document.hidden) finish("page hidden");
-    }
     document.addEventListener("keydown", onKeyDown);
-    window.addEventListener("blur", onBlur);
-    document.addEventListener("visibilitychange", onVisibilityChange);
 
     function frame() {
       if (ended) return;
