@@ -85,6 +85,7 @@ function runGradCpt(
 
     ctx.drawImage(currentImage, 0, 0);
     songPlayer.start();
+    songChange(performance.now(), true);
 
     function incorrect() {
       correctStreak = 0;
@@ -121,6 +122,7 @@ function runGradCpt(
       cancelAnimationFrame(frameId);
       cancelAnimationFrame(crossFadeFrameId);
       songPlayer.stop();
+      songChange(performance.now(), false);
       document.removeEventListener("keydown", onKeyDown);
       sessionCompletedUnmod = reason === null;
       if (reason !== null) {
@@ -134,6 +136,7 @@ function runGradCpt(
     function saveData(now: number) {
       jsPsych.data.write({
         section: "unmod",
+        timestamp: now,
         is_city: city,
         stimulus: stimulusFiles[stimulusIndex],
         response: clicked ? "space" : null,
@@ -147,6 +150,17 @@ function runGradCpt(
         modulation_depth: song.depth,
         modulation_frequency: song.frequency,
         flag_spamming: spacePressCount > 3,
+      });
+    }
+
+    function songChange(now: number, start: boolean) {
+      jsPsych.data.write({
+        section: start ? "song_start" : "song_end",
+        timestamp: now,
+        song_index: songIndex + 1,
+        song_name: song.name,
+        modulation_depth: song.depth,
+        modulation_frequency: song.frequency,
       });
     }
 
