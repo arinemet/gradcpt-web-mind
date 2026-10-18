@@ -66,10 +66,6 @@ function runGradCpt(
       if (isSafari) {
         alert("Safari is not supported. Switch to another browser instead.");
         jsPsych.endExperiment();
-      } else {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        }
       }
       startScreen.style.display = "none";
       appDiv.style.display = "";

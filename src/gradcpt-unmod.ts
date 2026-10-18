@@ -52,10 +52,6 @@ function runGradCpt(
     if (isSafari) {
       alert("Safari is not supported. Switch to another browser instead.");
       jsPsych.endExperiment();
-    } else {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      }
     }
     const song = modulationSettings[songIndex];
     if (!song) {
