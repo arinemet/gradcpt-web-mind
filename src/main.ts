@@ -92,7 +92,6 @@ async function main() {
   const onPavlovia = location.hostname === "run.pavlovia.org";
   const jsPsych = initJsPsych({
     on_finish: () => {
-      if (onPavlovia) return;
       const sessionCompleted =
         sessionCompletedPractice &&
         sessionCompletedCalibration &&
